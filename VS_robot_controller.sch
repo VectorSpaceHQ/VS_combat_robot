@@ -15,10 +15,10 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L Device:LED D1
+L Device:LED comms
 U 1 1 5DC8064A
 P 4900 5500
-F 0 "D1" H 4893 5716 50  0000 C CNN
+F 0 "comms" H 4893 5716 50  0000 C CNN
 F 1 "LED" H 4893 5625 50  0000 C CNN
 F 2 "LED_THT:LED_D3.0mm" H 4900 5500 50  0001 C CNN
 F 3 "~" H 4900 5500 50  0001 C CNN
@@ -205,7 +205,7 @@ U 1 1 5DFCE79D
 P 4550 3650
 F 0 "3.3V-arduino-pro-mini1" H 4550 4637 55  0000 C CNN
 F 1 "arduino-pro-mini" H 4550 4538 55  0000 C CNN
-F 2 "arduino-foot:ArduinoNano" H 4450 4500 55  0001 C CNN
+F 2 "mysensors:pro_mini" H 4450 4500 55  0001 C CNN
 F 3 "" H 4450 4500 55  0001 C CNN
 	1    4550 3650
 	1    0    0    -1  
@@ -255,47 +255,19 @@ Wire Wire Line
 Wire Wire Line
 	6050 4300 6050 4550
 Connection ~ 6050 4550
-Wire Wire Line
-	6050 4550 6050 4700
-Wire Wire Line
-	6050 4700 6150 4700
-Wire Wire Line
-	6050 4700 6050 5350
-Wire Wire Line
-	6050 5350 6150 5350
-Connection ~ 6050 4700
-Wire Wire Line
-	6150 4800 5900 4800
-Wire Wire Line
-	5900 4800 5900 5450
-Wire Wire Line
-	5900 5450 6150 5450
 $Comp
 L power:+3.3V #PWR0101
 U 1 1 5DD43B09
-P 5900 4800
-F 0 "#PWR0101" H 5900 4650 50  0001 C CNN
-F 1 "+3.3V" V 5915 4928 50  0000 L CNN
-F 2 "" H 5900 4800 50  0001 C CNN
-F 3 "" H 5900 4800 50  0001 C CNN
-	1    5900 4800
+P 6000 5650
+F 0 "#PWR0101" H 6000 5500 50  0001 C CNN
+F 1 "+3.3V" V 6015 5778 50  0000 L CNN
+F 2 "" H 6000 5650 50  0001 C CNN
+F 3 "" H 6000 5650 50  0001 C CNN
+	1    6000 5650
 	0    -1   -1   0   
 $EndComp
-Connection ~ 5900 4800
 Wire Wire Line
-	6150 4900 5200 4900
-Wire Wire Line
-	5200 4900 5200 3200
-Wire Wire Line
-	6150 5000 5250 5000
-Wire Wire Line
-	5250 5000 5250 3100
-Wire Wire Line
-	6150 5550 5500 5550
-Wire Wire Line
-	6150 5650 5650 5650
-Wire Wire Line
-	5650 2900 5650 5650
+	5650 2900 5650 5450
 Wire Wire Line
 	5500 3000 5500 5550
 Wire Wire Line
@@ -354,8 +326,6 @@ Wire Wire Line
 Connection ~ 4900 4550
 Wire Wire Line
 	4900 4550 6050 4550
-NoConn ~ 6150 5100
-NoConn ~ 6150 5750
 NoConn ~ 5900 4000
 $Comp
 L power:GND #PWR0105
@@ -375,4 +345,34 @@ NoConn ~ 4900 3550
 NoConn ~ 4900 3450
 NoConn ~ 4900 3350
 NoConn ~ 4200 2900
+Wire Wire Line
+	6150 5750 6050 5750
+Wire Wire Line
+	6050 4550 6050 5100
+Wire Wire Line
+	6150 5100 6050 5100
+Connection ~ 6050 5100
+Wire Wire Line
+	6050 5100 6050 5750
+Wire Wire Line
+	6150 5650 6100 5650
+Wire Wire Line
+	6150 5000 6100 5000
+Wire Wire Line
+	6100 5000 6100 5650
+Connection ~ 6100 5650
+Wire Wire Line
+	6100 5650 6000 5650
+Wire Wire Line
+	6150 5550 5500 5550
+Wire Wire Line
+	5650 5450 6150 5450
+Wire Wire Line
+	6150 4900 5250 4900
+Wire Wire Line
+	5250 4900 5250 3100
+Wire Wire Line
+	6150 4800 5200 4800
+Wire Wire Line
+	5200 4800 5200 3200
 $EndSCHEMATC
