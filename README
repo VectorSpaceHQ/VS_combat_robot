@@ -1,4 +1,4 @@
-This is a controller designed for use in combat robotics. It's inspired by the work of Team Panic (https://www.instructables.com/id/Cheap-Arduino-Combat-Robot-Control/), and developed after building 12 of their PCBs.
+This is a controller designed for use in combat robotics. It's inspired by the work of Team Panic (https://www.instructables.com/id/Cheap-Arduino-Combat-Robot-Control/), and developed after building and using 12 of their PCBs.
 
 Below are the changes
 - Two joysticks, as one is difficult to mix and control. They're also extremely cheap.
