@@ -1,6 +1,7 @@
 This is a controller designed for use in combat robotics. It's inspired by the work of Team Panic (https://www.instructables.com/id/Cheap-Arduino-Combat-Robot-Control/), and developed after building and using 12 of their PCBs.
 
 Below are the changes
+- Added on/off switch
 - Two joysticks, as one is difficult to mix and control. They're also extremely cheap.
 - Joysticks connect to female headers rather than being soldered directly. Easily replacable and easier to install.
 - Uses a 3.3V Arduino Pro Mini instead of 5V
