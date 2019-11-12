@@ -854,7 +854,7 @@
     (descr "LED, diameter 3.0mm, 2 pins")
     (tags "LED diameter 3.0mm 2 pins")
     (path /5DC8064A)
-    (fp_text reference D1 (at 1.27 -2.96) (layer F.SilkS)
+    (fp_text reference comms (at 1.27 -2.96) (layer F.SilkS)
       (effects (font (size 1 1) (thickness 0.15)))
     )
     (fp_text value LED (at 1.27 2.96) (layer F.Fab)
