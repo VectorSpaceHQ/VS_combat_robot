@@ -1,5 +1,5 @@
 EESchema Schematic File Version 4
-EELAYER 29 0
+EELAYER 30 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -96,8 +96,6 @@ Wire Wire Line
 	6250 3700 6550 3700
 Wire Wire Line
 	7050 4400 6600 4400
-Wire Wire Line
-	4850 4400 4850 4250
 $Comp
 L power:GND #PWR0103
 U 1 1 5DCC0FB3
@@ -130,10 +128,6 @@ Wire Wire Line
 Wire Wire Line
 	5750 3250 5550 3250
 Wire Wire Line
-	6400 5150 6450 5150
-Wire Wire Line
-	6450 5150 6450 3350
-Wire Wire Line
 	6450 3350 5550 3350
 Wire Wire Line
 	5550 3450 6500 3450
@@ -147,10 +141,6 @@ Wire Wire Line
 	5700 3550 5700 5350
 Wire Wire Line
 	5700 5350 5900 5350
-Wire Wire Line
-	6400 5350 6600 5350
-Wire Wire Line
-	6600 5350 6600 4400
 Connection ~ 6600 4400
 Wire Wire Line
 	6600 4400 6400 4400
@@ -213,6 +203,13 @@ F 3 "" H 4600 5050 50  0001 C CNN
 $EndComp
 Connection ~ 4600 5050
 Wire Wire Line
-	4850 4150 4850 4250
-Connection ~ 4850 4250
+	4850 4150 4850 4400
+Wire Wire Line
+	6600 5150 6600 4400
+Wire Wire Line
+	6400 5150 6600 5150
+Wire Wire Line
+	6450 3350 6450 5350
+Wire Wire Line
+	6450 5350 6400 5350
 $EndSCHEMATC
