@@ -12,6 +12,6 @@ Below are the changes
 
 
 # PCB
-The PCBs are designed using KiCAD and require the Arduino Pro Mini library. To produce the PCBs, zip the gerber directories and upload to a PCB manufacturer website.
+The PCBs are designed using KiCAD and require the Arduino Pro Mini library (https://github.com/Duckle29/kicad-libraries). To produce the PCBs, zip the gerber directories and upload to a PCB manufacturer website.
 
 # Arduino Code
