@@ -13,10 +13,11 @@ const byte address[6] = "00001";
 uint8_t msg[6]; 
 
 int leftFor = 3;
-int leftBack = 2;
+int leftBack = 4;
 int rightFor = 5;
-int rightBack = 4;
+int rightBack = 6;
 int LEDPin = 7;
+int weapon_pin = 2;
 int active_connection = 0;
 
 int signalLostCounter;
@@ -30,13 +31,18 @@ int dataRB;
 void setup() {
   // put your setup code here, to run once:
   
-  
   Serial.begin(9600);
   Serial.println("SETUP - 00001");
   
   pinMode(LEDPin, OUTPUT);
 
-  delay(3000);
+  SoftPWMBegin();
+  SoftPWMSet(leftFor, 0);
+  SoftPWMSet(leftBack, 0);
+  SoftPWMSet(rightFor, 0);
+  SoftPWMSet(rightBack, 0);
+
+  delay(1000);
 
   radio.begin();
 
@@ -44,13 +50,9 @@ void setup() {
   radio.setPALevel(RF24_PA_MIN);
   radio.startListening();
   
-  SoftPWMBegin();
-  SoftPWMSet(leftFor, 0);
-  SoftPWMSet(leftBack, 0);
-  SoftPWMSet(rightFor, 0);
-  SoftPWMSet(rightBack, 0);
 
-  ESC.attach(6,1000,2000); // (pin, min pulse width, max pulse width in microseconds) 
+
+  ESC.attach(weapon_pin,1000,2000); // (pin, min pulse width, max pulse width in microseconds) 
   // holding value at 0 for 2 sec arms ESC
   ESC.write(10);
   delay(4000);
