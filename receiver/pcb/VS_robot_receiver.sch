@@ -1,13 +1,14 @@
 EESchema Schematic File Version 4
-EELAYER 30 0
+LIBS:VS_robot_receiver-cache
+EELAYER 26 0
 EELAYER END
-$Descr A4 11693 8268
+$Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
+Title "RC Receiver"
+Date "2021-02-21"
 Rev ""
-Comp ""
+Comp "Vector Space "
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -25,7 +26,7 @@ F 3 "" H 5100 4300 55  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L RF:NRF24L01_Breakout U2
+L VS_robot_receiver-rescue:NRF24L01_Breakout-RF U2
 U 1 1 5DCB4C96
 P 7050 3800
 F 0 "U2" H 7528 3779 50  0000 L CNN
@@ -36,7 +37,7 @@ F 3 "http://www.nordicsemi.com/eng/content/download/2730/34105/file/nRF24L01_Pro
 	1    0    0    -1  
 $EndComp
 $Comp
-L Connector_Generic:Conn_02x04_Counter_Clockwise J2
+L VS_robot_receiver-rescue:Conn_02x04_Counter_Clockwise-Connector_Generic J2
 U 1 1 5DCB6746
 P 6100 5150
 F 0 "J2" H 6150 5467 50  0000 C CNN
@@ -49,7 +50,7 @@ $EndComp
 Wire Wire Line
 	7050 2300 7050 3200
 $Comp
-L power:+3.3V #PWR0102
+L VS_robot_receiver-rescue:+3.3V-power #PWR0102
 U 1 1 5DCBB551
 P 7050 2300
 F 0 "#PWR0102" H 7050 2150 50  0001 C CNN
@@ -97,7 +98,7 @@ Wire Wire Line
 Wire Wire Line
 	7050 4400 6800 4400
 $Comp
-L power:GND #PWR0103
+L VS_robot_receiver-rescue:GND-power #PWR0103
 U 1 1 5DCC0FB3
 P 7050 4400
 F 0 "#PWR0103" H 7050 4150 50  0001 C CNN
@@ -137,7 +138,7 @@ Wire Wire Line
 Wire Wire Line
 	5950 3650 5950 2800
 $Comp
-L Device:LED D1
+L VS_robot_receiver-rescue:LED-Device D1
 U 1 1 5DCCD414
 P 6400 2800
 F 0 "D1" H 6393 2545 50  0000 C CNN
@@ -168,7 +169,7 @@ Wire Wire Line
 Wire Wire Line
 	4600 2700 4600 5050
 $Comp
-L power:+5V #PWR0101
+L VS_robot_receiver-rescue:+5V-power #PWR0101
 U 1 1 5DCE7062
 P 4600 5050
 F 0 "#PWR0101" H 4600 4900 50  0001 C CNN
@@ -188,7 +189,7 @@ Wire Wire Line
 Wire Wire Line
 	6450 5350 6400 5350
 $Comp
-L Device:R_US R1
+L VS_robot_receiver-rescue:R_US-Device R1
 U 1 1 5DCCCAFF
 P 6100 2800
 F 0 "R1" V 5895 2800 50  0000 C CNN
@@ -213,7 +214,7 @@ Wire Wire Line
 Wire Wire Line
 	5700 5350 5900 5350
 $Comp
-L Device:R_US R5
+L VS_robot_receiver-rescue:R_US-Device R5
 U 1 1 5F0F2FCD
 P 6600 5350
 F 0 "R5" V 6805 5350 50  0000 C CNN
@@ -225,7 +226,7 @@ F 3 "~" H 6600 5350 50  0001 C CNN
 $EndComp
 Connection ~ 6450 5350
 $Comp
-L Device:R_US R6
+L VS_robot_receiver-rescue:R_US-Device R6
 U 1 1 5F0F49AF
 P 6650 5250
 F 0 "R6" V 6855 5250 50  0000 C CNN
@@ -237,7 +238,7 @@ F 3 "~" H 6650 5250 50  0001 C CNN
 $EndComp
 Connection ~ 6500 5250
 $Comp
-L Device:R_US R2
+L VS_robot_receiver-rescue:R_US-Device R2
 U 1 1 5F0F4C6D
 P 5550 5350
 F 0 "R2" V 5755 5350 50  0000 C CNN
@@ -249,7 +250,7 @@ F 3 "~" H 5550 5350 50  0001 C CNN
 $EndComp
 Connection ~ 5700 5350
 $Comp
-L Device:R_US R3
+L VS_robot_receiver-rescue:R_US-Device R3
 U 1 1 5F0F5250
 P 5600 5250
 F 0 "R3" V 5805 5250 50  0000 C CNN
@@ -281,7 +282,7 @@ Wire Wire Line
 	5400 5250 5400 5350
 Connection ~ 5400 5250
 $Comp
-L Device:R_US R4
+L VS_robot_receiver-rescue:R_US-Device R4
 U 1 1 5F0CC2FB
 P 6000 4650
 F 0 "R4" V 6205 4650 50  0000 C CNN

@@ -9,13 +9,21 @@
 
 Servo ESC;     // create servo object to control the ESC
 RF24 radio(9,10);
-const byte address[6] = "00001";
+const byte address[6] = "11001";
 uint8_t msg[6]; 
-
+/*
 int leftFor = 3;
 int leftBack = 4;
 int rightFor = 5;
 int rightBack = 6;
+*/
+
+int leftFor = 5;
+int leftBack = 4;
+int rightFor = 6;
+int rightBack = 3;
+
+
 int LEDPin = 7;
 int weapon_pin = 2;
 int active_connection = 0;
@@ -32,7 +40,7 @@ void setup() {
   // put your setup code here, to run once:
   
   Serial.begin(9600);
-  Serial.println("SETUP - 00001");
+  Serial.println("SETUP - ");
   
   pinMode(LEDPin, OUTPUT);
 
@@ -78,7 +86,6 @@ void loop() {
   //if signal from the radio move the bot, otherwise fail to an "all off" condition
   if (active_connection==1){
 
-    //analogWrite(motor,data);
     if((dataLF>0&&dataLB>0)||(dataRF>0&&dataRB>0)){
       //error condition (attempting to put pwm signal into both forwards and backwards at the same time)
       Serial.println("BOTH ABOVE ERROR");
@@ -106,8 +113,10 @@ void loop() {
       Serial.print(weapon);
       Serial.print(", ");
       Serial.println(active_connection);
-      SoftPWMSet(leftFor, dataLF);
-      SoftPWMSet(leftBack, dataLB);
+      SoftPWMSet(leftFor, 255-dataLF);
+      SoftPWMSet(leftBack, 255-dataLB);
+      //SoftPWMSet(leftBack, 255);
+      //SoftPWMSet(leftFor, 0);
       SoftPWMSet(rightFor, dataRF);
       SoftPWMSet(rightBack, dataRB);
       ESC.write(weapon);    // Send the signal to the ESC. 180 max
@@ -115,6 +124,7 @@ void loop() {
     }
     
   }else{
+    Serial.println("No SIGNAL. Too slow.");
     //No signal from radio, this can happen if the radio is transmitting too slowly
     //either reduce the delay in the tx code or increase the delay below
     signalLostCounter++;
@@ -126,7 +136,7 @@ void loop() {
       ESC.write(0);    // Send the signal to the ESC
       digitalWrite(LEDPin, LOW);
     }
-    Serial.println("No SIGNAL. Too slow.");
+    
 
     digitalWrite(LEDPin, HIGH);
     delay(20);
