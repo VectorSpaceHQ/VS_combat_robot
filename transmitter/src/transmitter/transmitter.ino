@@ -49,7 +49,7 @@ void setup() {
   radio.begin();
 
   radio.openWritingPipe(address);
-  radio.setPALevel(RF24_PA_MIN);
+  radio.setPALevel(RF24_PA_MAX);
   radio.stopListening();
   Serial.println("Done SETUP");
 }
@@ -114,6 +114,6 @@ void loop() {
   radio.write(msg, 6);
 
   //delay sometimes needed. can be modified to suit
-  delay(10);
+  //delay(10);
 
 }

@@ -1,13 +1,12 @@
 EESchema Schematic File Version 4
-LIBS:VS_robot_receiver-cache
-EELAYER 26 0
+EELAYER 30 0
 EELAYER END
 $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "RC Receiver"
-Date "2021-02-21"
-Rev ""
+Date "2022-06-10"
+Rev "1.3"
 Comp "Vector Space "
 Comment1 ""
 Comment2 ""
@@ -15,289 +14,255 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L arduino:arduino-pro-mini U1
-U 1 1 5DCB3EBA
-P 5200 3450
-F 0 "U1" H 5200 4437 55  0000 C CNN
-F 1 "arduino-pro-mini" H 5200 4338 55  0000 C CNN
-F 2 "arduino-footprint:pro_mini" H 5100 4300 55  0001 C CNN
-F 3 "" H 5100 4300 55  0001 C CNN
-	1    5200 3450
+L ARDUINO_PRO_MINI:ARDUINO_PRO_MINI U2
+U 1 1 62A3C2D5
+P 5350 3800
+F 0 "U2" H 5350 5167 50  0000 C CNN
+F 1 "ARDUINO_PRO_MINI" H 5350 5076 50  0000 C CNN
+F 2 "MODULE_ARDUINO_PRO_MINI" H 5350 3800 50  0001 L BNN
+F 3 "" H 5350 3800 50  0001 L BNN
+F 4 "Manufacturer Recommendations" H 5350 3800 50  0001 L BNN "STANDARD"
+F 5 "N/A" H 5350 3800 50  0001 L BNN "PARTREV"
+F 6 "N/A" H 5350 3800 50  0001 L BNN "MAXIMUM_PACKAGE_HEIGHT"
+F 7 "SparkFun Electronics" H 5350 3800 50  0001 L BNN "MANUFACTURER"
+	1    5350 3800
 	1    0    0    -1  
 $EndComp
 $Comp
-L VS_robot_receiver-rescue:NRF24L01_Breakout-RF U2
-U 1 1 5DCB4C96
-P 7050 3800
-F 0 "U2" H 7528 3779 50  0000 L CNN
-F 1 "NRF24L01_Breakout" H 7528 3688 50  0000 L CNN
-F 2 "RF_Module:nRF24L01_Breakout" H 7200 4400 50  0001 L CIN
-F 3 "http://www.nordicsemi.com/eng/content/download/2730/34105/file/nRF24L01_Product_Specification_v2_0.pdf" H 7050 3700 50  0001 C CNN
-	1    7050 3800
-	1    0    0    -1  
-$EndComp
-$Comp
-L VS_robot_receiver-rescue:Conn_02x04_Counter_Clockwise-Connector_Generic J2
-U 1 1 5DCB6746
-P 6100 5150
-F 0 "J2" H 6150 5467 50  0000 C CNN
-F 1 "outputs" H 6150 5376 50  0000 C CNN
-F 2 "Connector_PinSocket_2.54mm:PinSocket_2x04_P2.54mm_Vertical" H 6100 5150 50  0001 C CNN
-F 3 "~" H 6100 5150 50  0001 C CNN
-	1    6100 5150
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7050 2300 7050 3200
-$Comp
-L VS_robot_receiver-rescue:+3.3V-power #PWR0102
-U 1 1 5DCBB551
-P 7050 2300
-F 0 "#PWR0102" H 7050 2150 50  0001 C CNN
-F 1 "+3.3V" H 7065 2473 50  0000 C CNN
-F 2 "" H 7050 2300 50  0001 C CNN
-F 3 "" H 7050 2300 50  0001 C CNN
-	1    7050 2300
-	1    0    0    -1  
-$EndComp
-Connection ~ 7050 2300
-Wire Wire Line
-	5550 3850 6550 3850
-Wire Wire Line
-	6550 3850 6550 4000
-Wire Wire Line
-	4700 2300 4700 2800
-Wire Wire Line
-	4700 2800 4850 2800
-Wire Wire Line
-	4700 2300 7050 2300
-Wire Wire Line
-	6550 3800 5650 3800
-Wire Wire Line
-	5650 3800 5650 3950
-Wire Wire Line
-	5650 3950 5550 3950
-Wire Wire Line
-	5550 4050 6100 4050
-Wire Wire Line
-	6100 4050 6100 3500
-Wire Wire Line
-	6100 3500 6550 3500
-Wire Wire Line
-	6550 3600 6150 3600
-Wire Wire Line
-	6150 3600 6150 4150
-Wire Wire Line
-	6150 4150 5550 4150
-Wire Wire Line
-	5550 4250 6250 4250
-Wire Wire Line
-	6250 4250 6250 3700
-Wire Wire Line
-	6250 3700 6550 3700
-Wire Wire Line
-	7050 4400 6800 4400
-$Comp
-L VS_robot_receiver-rescue:GND-power #PWR0103
-U 1 1 5DCC0FB3
-P 7050 4400
-F 0 "#PWR0103" H 7050 4150 50  0001 C CNN
-F 1 "GND" H 7055 4227 50  0000 C CNN
-F 2 "" H 7050 4400 50  0001 C CNN
-F 3 "" H 7050 4400 50  0001 C CNN
-	1    7050 4400
-	1    0    0    -1  
-$EndComp
-Connection ~ 7050 4400
-Wire Wire Line
-	5900 5050 4600 5050
-Wire Wire Line
-	6400 5050 6400 4400
-Connection ~ 6400 4400
-Wire Wire Line
-	6400 4400 6150 4400
-Wire Wire Line
-	5900 5150 5850 5150
-Wire Wire Line
-	5850 5150 5850 4650
-Wire Wire Line
-	5850 3150 5550 3150
-Wire Wire Line
-	6450 3350 5550 3350
-Wire Wire Line
-	5550 3450 6500 3450
-Wire Wire Line
-	6500 5250 6400 5250
-Wire Wire Line
-	5550 3550 5700 3550
-Connection ~ 6600 4400
-Wire Wire Line
-	6600 4400 6400 4400
-Wire Wire Line
-	5550 3650 5950 3650
-Wire Wire Line
-	5950 3650 5950 2800
-$Comp
-L VS_robot_receiver-rescue:LED-Device D1
-U 1 1 5DCCD414
-P 6400 2800
-F 0 "D1" H 6393 2545 50  0000 C CNN
-F 1 "comms" H 6393 2636 50  0000 C CNN
-F 2 "LED_THT:LED_D3.0mm" H 6400 2800 50  0001 C CNN
-F 3 "~" H 6400 2800 50  0001 C CNN
-	1    6400 2800
+L RF:NRF24L01_Breakout U1
+U 1 1 62A3F41F
+P 3350 3800
+F 0 "U1" H 3729 3754 50  0000 L CNN
+F 1 "NRF24L01_Breakout" H 3729 3845 50  0000 L CNN
+F 2 "RF_Module:nRF24L01_Breakout" H 3500 4400 50  0001 L CIN
+F 3 "http://www.nordicsemi.com/eng/content/download/2730/34105/file/nRF24L01_Product_Specification_v2_0.pdf" H 3350 3700 50  0001 C CNN
+	1    3350 3800
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	6550 2800 6550 3200
+	3850 4100 3850 4400
 Wire Wire Line
-	6550 3200 6400 3200
+	3850 4400 4650 4400
 Wire Wire Line
-	6400 3200 6400 4400
-NoConn ~ 5550 3750
-NoConn ~ 5550 3000
-NoConn ~ 5550 2900
-NoConn ~ 5550 2800
-NoConn ~ 5550 2700
-NoConn ~ 4850 3000
-NoConn ~ 4850 3100
-NoConn ~ 4850 3300
-NoConn ~ 4850 3400
-NoConn ~ 6550 4100
+	3850 4000 3950 4000
 Wire Wire Line
-	4850 2700 4600 2700
+	3950 4000 3950 4300
 Wire Wire Line
-	4600 2700 4600 5050
+	3950 4300 4650 4300
+Wire Wire Line
+	3850 3900 4050 3900
+Wire Wire Line
+	4050 3900 4050 4200
+Wire Wire Line
+	4050 4200 4650 4200
+Wire Wire Line
+	3850 3800 4150 3800
+Wire Wire Line
+	4150 3800 4150 4500
+Wire Wire Line
+	4150 4500 4650 4500
+Wire Wire Line
+	3850 3600 4250 3600
+Wire Wire Line
+	4250 3600 4250 5200
+Wire Wire Line
+	4250 5200 6350 5200
+Wire Wire Line
+	6350 5200 6350 4500
+Wire Wire Line
+	6350 4500 6050 4500
+NoConn ~ 3850 3500
+Wire Wire Line
+	6050 2700 6300 2700
+Wire Wire Line
+	6300 2700 6300 2300
+Wire Wire Line
+	6050 2900 6800 2900
+Wire Wire Line
+	6800 2900 6800 2300
 $Comp
-L VS_robot_receiver-rescue:+5V-power #PWR0101
-U 1 1 5DCE7062
-P 4600 5050
-F 0 "#PWR0101" H 4600 4900 50  0001 C CNN
-F 1 "+5V" H 4615 5223 50  0000 C CNN
-F 2 "" H 4600 5050 50  0001 C CNN
-F 3 "" H 4600 5050 50  0001 C CNN
-	1    4600 5050
+L Connector_Generic:Conn_02x04_Odd_Even J1
+U 1 1 62A4A640
+P 8100 3150
+F 0 "J1" H 8150 3467 50  0000 C CNN
+F 1 "Conn_02x04_Odd_Even" H 8150 3376 50  0000 C CNN
+F 2 "" H 8100 3150 50  0001 C CNN
+F 3 "~" H 8100 3150 50  0001 C CNN
+	1    8100 3150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7900 3050 6800 3050
+Wire Wire Line
+	6800 3050 6800 2900
+Connection ~ 6800 2900
+Wire Wire Line
+	7900 3350 7900 3650
+Wire Wire Line
+	8400 3650 8400 3350
+Wire Wire Line
+	6500 4100 6050 4100
+Wire Wire Line
+	7750 4050 8700 4050
+Wire Wire Line
+	6300 3150 6300 3900
+Wire Wire Line
+	6300 3900 6050 3900
+Wire Wire Line
+	6300 3150 7900 3150
+Wire Wire Line
+	7750 4050 7750 4200
+Wire Wire Line
+	6050 4200 7750 4200
+Wire Wire Line
+	7900 3250 6500 3250
+Wire Wire Line
+	6500 3250 6500 4100
+Wire Wire Line
+	8650 4000 8650 3150
+Wire Wire Line
+	8650 3150 8400 3150
+Wire Wire Line
+	6050 4000 8650 4000
+Wire Wire Line
+	8700 4050 8700 3250
+Wire Wire Line
+	8700 3250 8400 3250
+Wire Wire Line
+	8400 3050 8500 3050
+Wire Wire Line
+	8500 3050 8500 3800
+Wire Wire Line
+	8500 3800 6050 3800
+$Comp
+L Device:LED D1
+U 1 1 62A48935
+P 7700 4550
+F 0 "D1" H 7693 4295 50  0000 C CNN
+F 1 "LED" H 7693 4386 50  0000 C CNN
+F 2 "" H 7700 4550 50  0001 C CNN
+F 3 "~" H 7700 4550 50  0001 C CNN
+	1    7700 4550
 	-1   0    0    1   
 $EndComp
-Connection ~ 4600 5050
-Wire Wire Line
-	4850 4150 4850 4400
-Wire Wire Line
-	6600 5150 6600 4400
-Wire Wire Line
-	6400 5150 6600 5150
-Wire Wire Line
-	6450 5350 6400 5350
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R1
-U 1 1 5DCCCAFF
-P 6100 2800
-F 0 "R1" V 5895 2800 50  0000 C CNN
-F 1 "600" V 5986 2800 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 6140 2790 50  0001 C CNN
-F 3 "~" H 6100 2800 50  0001 C CNN
-	1    6100 2800
+L Device:R_US R1
+U 1 1 62A480EE
+P 7400 4550
+F 0 "R1" V 7195 4550 50  0000 C CNN
+F 1 "680ohm" V 7286 4550 50  0000 C CNN
+F 2 "" V 7440 4540 50  0001 C CNN
+F 3 "~" H 7400 4550 50  0001 C CNN
+	1    7400 4550
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	6450 3350 6450 5350
+	6650 4550 7250 4550
 Wire Wire Line
-	6500 3450 6500 5250
+	6050 4300 6650 4300
 Wire Wire Line
-	5750 3250 5550 3250
+	6650 4300 6650 4550
 Wire Wire Line
-	5750 5250 5750 3250
-Wire Wire Line
-	5700 3550 5700 5350
-Wire Wire Line
-	5900 5250 5750 5250
-Wire Wire Line
-	5700 5350 5900 5350
+	7850 4550 8250 4550
+NoConn ~ 6050 4900
+NoConn ~ 6050 4800
+NoConn ~ 6050 4400
+NoConn ~ 6050 3700
+NoConn ~ 6050 3600
+NoConn ~ 6050 3500
+NoConn ~ 6050 3300
+NoConn ~ 6050 3200
+NoConn ~ 6050 3100
+NoConn ~ 6050 2800
+NoConn ~ 4650 3100
+NoConn ~ 4650 3200
+NoConn ~ 4650 3400
+NoConn ~ 4650 3500
+NoConn ~ 4650 3700
+NoConn ~ 4650 3800
+NoConn ~ 4650 3900
+NoConn ~ 4650 4000
+NoConn ~ 4650 4100
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R5
-U 1 1 5F0F2FCD
-P 6600 5350
-F 0 "R5" V 6805 5350 50  0000 C CNN
-F 1 "10k" V 6714 5350 50  0000 C CNN
-F 2 "" V 6640 5340 50  0001 C CNN
-F 3 "~" H 6600 5350 50  0001 C CNN
-	1    6600 5350
+L power:GND #PWR0101
+U 1 1 62A7CEF3
+P 8250 4550
+F 0 "#PWR0101" H 8250 4300 50  0001 C CNN
+F 1 "GND" H 8255 4377 50  0000 C CNN
+F 2 "" H 8250 4550 50  0001 C CNN
+F 3 "" H 8250 4550 50  0001 C CNN
+	1    8250 4550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR0102
+U 1 1 62A7FA5C
+P 6050 4700
+F 0 "#PWR0102" H 6050 4450 50  0001 C CNN
+F 1 "GND" V 6055 4572 50  0000 R CNN
+F 2 "" H 6050 4700 50  0001 C CNN
+F 3 "" H 6050 4700 50  0001 C CNN
+	1    6050 4700
 	0    -1   -1   0   
 $EndComp
-Connection ~ 6450 5350
+Wire Wire Line
+	7900 3650 8150 3650
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R6
-U 1 1 5F0F49AF
-P 6650 5250
-F 0 "R6" V 6855 5250 50  0000 C CNN
-F 1 "10k" V 6764 5250 50  0000 C CNN
-F 2 "" V 6690 5240 50  0001 C CNN
-F 3 "~" H 6650 5250 50  0001 C CNN
-	1    6650 5250
-	0    -1   -1   0   
+L power:GND #PWR0103
+U 1 1 62A80286
+P 8150 3650
+F 0 "#PWR0103" H 8150 3400 50  0001 C CNN
+F 1 "GND" H 8155 3477 50  0000 C CNN
+F 2 "" H 8150 3650 50  0001 C CNN
+F 3 "" H 8150 3650 50  0001 C CNN
+	1    8150 3650
+	-1   0    0    1   
 $EndComp
-Connection ~ 6500 5250
+Connection ~ 8150 3650
+Wire Wire Line
+	8150 3650 8400 3650
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R2
-U 1 1 5F0F4C6D
-P 5550 5350
-F 0 "R2" V 5755 5350 50  0000 C CNN
-F 1 "10k" V 5664 5350 50  0000 C CNN
-F 2 "" V 5590 5340 50  0001 C CNN
-F 3 "~" H 5550 5350 50  0001 C CNN
-	1    5550 5350
-	0    -1   -1   0   
+L power:GND #PWR0104
+U 1 1 62A80DA8
+P 3350 3200
+F 0 "#PWR0104" H 3350 2950 50  0001 C CNN
+F 1 "GND" H 3355 3027 50  0000 C CNN
+F 2 "" H 3350 3200 50  0001 C CNN
+F 3 "" H 3350 3200 50  0001 C CNN
+	1    3350 3200
+	-1   0    0    1   
 $EndComp
-Connection ~ 5700 5350
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R3
-U 1 1 5F0F5250
-P 5600 5250
-F 0 "R3" V 5805 5250 50  0000 C CNN
-F 1 "10k" V 5714 5250 50  0000 C CNN
-F 2 "" V 5640 5240 50  0001 C CNN
-F 3 "~" H 5600 5250 50  0001 C CNN
-	1    5600 5250
-	0    -1   -1   0   
+L power:+3.3V #PWR0105
+U 1 1 62A82169
+P 6300 2300
+F 0 "#PWR0105" H 6300 2150 50  0001 C CNN
+F 1 "+3.3V" H 6315 2473 50  0000 C CNN
+F 2 "" H 6300 2300 50  0001 C CNN
+F 3 "" H 6300 2300 50  0001 C CNN
+	1    6300 2300
+	1    0    0    -1  
 $EndComp
-Connection ~ 5750 5250
-Wire Wire Line
-	6800 4400 6800 5250
-Connection ~ 6800 4400
-Wire Wire Line
-	6800 4400 6600 4400
-Wire Wire Line
-	6800 5250 6800 5350
-Wire Wire Line
-	6800 5350 6750 5350
-Connection ~ 6800 5250
-Wire Wire Line
-	5400 4400 5400 5250
-Wire Wire Line
-	5400 5250 5450 5250
-Connection ~ 5400 4400
-Wire Wire Line
-	5400 4400 4850 4400
-Wire Wire Line
-	5400 5250 5400 5350
-Connection ~ 5400 5250
 $Comp
-L VS_robot_receiver-rescue:R_US-Device R4
-U 1 1 5F0CC2FB
-P 6000 4650
-F 0 "R4" V 6205 4650 50  0000 C CNN
-F 1 "10k" V 6114 4650 50  0000 C CNN
-F 2 "" V 6040 4640 50  0001 C CNN
-F 3 "~" H 6000 4650 50  0001 C CNN
-	1    6000 4650
-	0    -1   -1   0   
+L power:+3.3V #PWR0106
+U 1 1 62A84B13
+P 3350 4400
+F 0 "#PWR0106" H 3350 4250 50  0001 C CNN
+F 1 "+3.3V" H 3365 4573 50  0000 C CNN
+F 2 "" H 3350 4400 50  0001 C CNN
+F 3 "" H 3350 4400 50  0001 C CNN
+	1    3350 4400
+	-1   0    0    1   
 $EndComp
-Connection ~ 5850 4650
-Wire Wire Line
-	5850 4650 5850 3150
-Wire Wire Line
-	6150 4650 6150 4400
-Connection ~ 6150 4400
-Wire Wire Line
-	6150 4400 5400 4400
+$Comp
+L power:+5V #PWR0107
+U 1 1 62A8831D
+P 6800 2300
+F 0 "#PWR0107" H 6800 2150 50  0001 C CNN
+F 1 "+5V" H 6815 2473 50  0000 C CNN
+F 2 "" H 6800 2300 50  0001 C CNN
+F 3 "" H 6800 2300 50  0001 C CNN
+	1    6800 2300
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
