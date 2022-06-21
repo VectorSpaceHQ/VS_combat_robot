@@ -1,0 +1,12 @@
+== Changes from VS v1 to v2 boards ==
+* Add better silkscreen guidance on receiver for the NRF24 board and for output pins.
+
+== Changes from Team Panic to VS v1 board ==
+* Added on/off switch
+* Two joysticks, as one is difficult to mix and control. They're also extremely cheap.
+* Joysticks connect to female headers rather than being soldered directly. Easily replacable and easier to install.
+* Uses a 3.3V Arduino Pro Mini instead of 5V, making the Arduino the only necessary voltage regulator.
+* Voltage regulator goes directly to VCC and VCC ties to NRF24. This allows powering both components through the USB programmer, no longer requiring a battery to be plugged in for testing.
+* Added an LED for active communications indication
+* Weapon is now an on/off switch
+* Receiver has pads for the motor control signals

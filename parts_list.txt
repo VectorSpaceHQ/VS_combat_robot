@@ -1,0 +1,11 @@
+= Robot =
+Microcontroller: Arduino Pro Mini 3.3v
+Radio: NRF24
+Motors: 600 RPM, 12V gear motors
+Speed Controller: L298N
+Wheels: 75mm foam
+
+
+= Transmitter =
+Microcontroller: Arduino Pro Mini 3.3v
+Radio: NRF24
