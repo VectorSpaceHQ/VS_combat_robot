@@ -18,9 +18,9 @@ int rightFor = 5;
 int rightBack = 6;
 */
 
-int leftFor = 5;
-int leftBack = 4;
-int rightFor = 6;
+int leftFor = 6;
+int leftBack = 5;
+int rightFor = 4;
 int rightBack = 3;
 
 
@@ -146,6 +146,6 @@ void loop() {
   }
 
   //delay for sinking with the tx, adjust as needed
-  delay(20);
+  //delay(20);
 
 }
