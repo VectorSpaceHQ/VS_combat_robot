@@ -1,119 +1,109 @@
-#include <nRF24L01.h>
-#include <printf.h>
-#include <RF24.h>
-#include <RF24_config.h>
-//sitck potentiometer input pints.
-int weapon_pin = 6;
-int leftX = A2;
-int leftY = A3;
-int rightY = A0;
-int rightX = A1;
+#include <esp_now.h>
+#include <WiFi.h>
+
+
+// REPLACE WITH THE MAC Address of your receiver
+uint8_t broadcastAddress[] = {0x10, 0x91, 0xA8, 0x03, 0xD1, 0x18};
+//10:91:A8:03:D1:18
+
+typedef struct struct_message {
+    int leftJoy;
+    int rightJoy;
+    bool weapon;
+} struct_message;
+struct_message myData;
+
+
+// Joystick variables
+const int leftJoyPin = D1;
+const int rightJoyPin = D0;
 int leftVal;
 int rightVal;
-int LEDPin;
+int deadband = 20;
+int leftRestVal = 2300;
+int leftRestMin = leftBase - deadband;
+int leftRestMax = leftBase + deadband;
+int rightRestVal = 2420;
+int rightRestMin = rightBase - deadband;
+int rightRestMax = rightBase + deadband;
 
-int leftBase = 512;
-int leftRestMin = leftBase - 20;
-int leftRestMax = leftBase + 20;
-int rightBase = 512;
-int rightRestMin = rightBase - 20;
-int rightRestMax = rightBase + 20;
-
-int active_connection = 1; // if this gets through, there's an active connection between TX and RX
-
-//data to send, each will be in range 0-255
-int rightForward;
-int rightBackward;
-int leftForward;
-int leftBackward;
-int pwmWeapon;
-bool weapon_state;
-
-//radio setups
-RF24 radio(9, 10);
-
-uint8_t msg[6];
-const byte address[6] = "11001";
+int statusLED1 = D2;
+int commsLED = D3;
+int pwrWarningLED = D4;
 
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
+void setup(){
+    Serial.begin(115200);
 
-  Serial.print("STARTING - ");
-  delay(1000);
+    #if defined ARDUINO_ESP32_DEV  
+      Serial.println("ARDUINO_ESP32_DEV");  
+    #elif defined ARDUINO_ESP32S2_DEV  
+      Serial.println("ARDUINO_ESP32S2_DEV");  
+    #elif defined ARDUINO_ESP32C3_DEV  
+      Serial.println("ARDUINO_ESP32C3_DEV");  
+    #endif  
 
 
-  pinMode(weapon_pin, INPUT_PULLUP);
-
-  radio.begin();
-
-  radio.openWritingPipe(address);
-  radio.setPALevel(RF24_PA_MAX);
-  radio.stopListening();
-  Serial.println("Done SETUP");
+    Serial.println("Starting up");
+    // blink indicator light on controller to show life
+    // establish bluetooth connection
+    // blink indicator light on bot to show life
 }
 
-void loop() {
-  //read stick poitions and constrain
 
-  leftVal = analogRead(leftY);
-  rightVal = analogRead(rightY);
-  rightVal = 1023 - rightVal;
+void read_jsticks(){
+  int Lcorrection = leftRestVal - 2048;
+  int Rcorrection = rightRestVal - 2048;
+  leftVal = analogRead(leftJoyPin) - Lcorrection;
+  rightVal = analogRead(rightJoyPin) - Rcorrection;
+  rightVal = 4095 - rightVal; // installed upside down
+  
+  
+  myData.leftJoy = leftVal;
+  myData.rightJoy = rightVal;
+}
 
-  if (leftVal < leftRestMax && leftVal > leftRestMin) {
-    leftForward = 0;
-    leftBackward = 0;
-  }
-  else {
-    if (leftVal > leftRestMax) {
-      leftForward = map(leftVal, leftRestMax, 1023, 0, 255);
+
+void read_weapon(){
+    myData.weapon = true;
+}
+
+
+void send_data(){
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+
+    if (result == ESP_OK) {
+        Serial.println("Sent with success");
     }
-    else if (leftVal < leftRestMin) {
-      leftBackward = map(leftVal, leftRestMin, 0, 0, 255);
+    else {
+        Serial.println("Error sending the data");
     }
-  }
+}
 
-  if (rightVal < rightRestMax && rightVal > rightRestMin) {
-    rightForward = 0;
-    rightBackward = 0;
-  }
-  else {
-    if (rightVal > rightRestMax) {
-      rightForward = map(rightVal, rightRestMax, 1023, 0, 255);
-    }
-    else if (rightVal < rightRestMin) {
-      rightBackward = map(rightVal, rightRestMin, 0, 0, 255);
-    }
-  }
 
-  //set weapon pwm, unused for now
-  weapon_state = digitalRead(weapon_pin);
-  pwmWeapon = map(weapon_state, 0, 1, 190, 0);
-
-  //send values and write to serial
-  msg[0] = leftForward;
-  msg[1] = leftBackward;
-  msg[2] = rightForward;
-  msg[3] = rightBackward;
-  msg[4] = pwmWeapon;
-  msg[5] = active_connection;
-
-  Serial.print(leftForward);
+void debug_output(){
+  Serial.print("Joysticks: ");
+  Serial.print(myData.leftJoy);
   Serial.print(", ");
-  Serial.print(leftBackward);
-  Serial.print(", ");
-  Serial.print(rightForward);
-  Serial.print(", ");
-  Serial.print(rightBackward);
-  Serial.print(", ");
-  Serial.print(pwmWeapon);
-  Serial.print(", ");
-  Serial.println(msg[5]);
+  Serial.println(myData.rightJoy);
+}
 
-  radio.write(msg, 6);
 
-  //delay sometimes needed. can be modified to suit
-  //delay(10);
+void check_voltage(){
+  Serial.print("Controller voltage Normal");
+}
+/*
+void status_report(){
+  check_antenna();
+  check_message();
+  check_voltage();
+  report_failures();
+}*/
 
+
+void loop(){
+    read_jsticks();
+    read_weapon();
+    //send_data();
+    debug_output();
 }
