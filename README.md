@@ -1,7 +1,3 @@
-This is an RC controller designed for use in combat robotics. It includes PCB designs for the transmitter and receiver, as well as the necessary Arduino code. It's inspired by the work of Team Panic (https://www.instructables.com/id/Cheap-Arduino-Combat-Robot-Control/), and developed after building and using 12 of their PCBs.
+This is an open source, low cost, DIY combat robot kit. It is designed for use with antweight (1lb) and beetleweight (3lb) combat robots.
 
-
-# PCB
-The PCBs are designed using KiCAD and require the Arduino Pro Mini library (https://github.com/Duckle29/kicad-libraries). To produce the PCBs, zip the gerber directories and upload to a PCB manufacturer website.
-
-# Arduino Code
+This repository includes PCB designs for the transmitter and receiver, the associated software, as well as a simple 3d printable chassis and controller design.
