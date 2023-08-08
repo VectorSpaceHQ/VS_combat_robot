@@ -1,3 +1,9 @@
+== v3 PCBs, commit d353bc9  ==
+* Complete redesign from scratch.
+* Switching from Arduino to ESP32-C3 MCUs
+* More integrated design such as directly mounting our own H-bridges.
+* Switching from NRF24 to Bluetooth
+
 == Changes from VS v1 to v2 boards ==
 * Add better silkscreen guidance on receiver for the NRF24 board and for output pins.
 
