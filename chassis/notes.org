@@ -1,0 +1,3 @@
+* Threaded brass inserts
+M3 insert nut needs 4.9mm or 0.19in hole
+M4 insert nut needs 5.9mm or 0.23in hole
