@@ -1,6 +1,10 @@
+#include <Wire.h>
+#include <U8g2lib.h>
+
 #include <esp_now.h>
 #include <WiFi.h>
 
+#include "screen_icons.h"
 
 // REPLACE WITH THE MAC Address of your receiver
 uint8_t broadcastAddress[] = {0x10, 0x91, 0xA8, 0x03, 0xD1, 0x18};
@@ -13,6 +17,8 @@ typedef struct struct_message {
 } struct_message;
 struct_message myData;
 
+//LCD screen 
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C screen(U8G2_R0);
 
 // Joystick variables
 const int leftJoyPin = D1;
@@ -21,11 +27,11 @@ int leftVal;
 int rightVal;
 int deadband = 20;
 int leftRestVal = 2300;
-int leftRestMin = leftBase - deadband;
-int leftRestMax = leftBase + deadband;
+int leftRestMin = leftRestVal - deadband;
+int leftRestMax = leftRestVal + deadband;
 int rightRestVal = 2420;
-int rightRestMin = rightBase - deadband;
-int rightRestMax = rightBase + deadband;
+int rightRestMin = rightRestVal - deadband;
+int rightRestMax = rightRestVal + deadband;
 
 int statusLED1 = D2;
 int commsLED = D3;
@@ -48,6 +54,8 @@ void setup(){
     // blink indicator light on controller to show life
     // establish bluetooth connection
     // blink indicator light on bot to show life
+
+    setup_screen();
 }
 
 
@@ -105,5 +113,25 @@ void loop(){
     read_jsticks();
     read_weapon();
     //send_data();
+    update_screen();
     debug_output();
+}
+
+
+void setup_screen(){
+  screen.begin();
+}
+
+void update_screen(){
+  screen.clearBuffer();
+
+  //LEFT sidebar for controller data
+  screen.drawBox(16,0,2,64);
+  screen.drawXBMP(2,2,12,7,screen_icon_controller);
+
+  //RIGHT sidebar for robot data
+  screen.drawBox(109,0,2,64);
+  screen.drawXBMP(113,2,12,7,screen_icon_robot);
+
+  screen.sendBuffer();
 }
