@@ -11,10 +11,10 @@ int motor2Pin1 = D0;
 int motor2Pin2 = D1; 
 
 // Setting PWM properties
-const int freq = 30000;
+const int freq = 5000;
 const int pwmChannel = 0;
 const int resolution = 8;
-int dutyCycle = 200;
+int dutyCycle = 0;
 
 void setup() {
   // sets the pins as outputs:
@@ -26,6 +26,9 @@ void setup() {
   
   // configure LED PWM functionalitites
   ledcSetup(pwmChannel, freq, resolution);
+  ledcAttachPin(motor1Pin1, pwmChannel);
+  ledcAttachPin(motor1Pin2, pwmChannel);
+  GPIO.func_out_sel_cfg[motor1Pin2].inv_sel = 1; 
   
 
 
@@ -36,6 +39,7 @@ void setup() {
 }
 
 void loop() {
+  /*
   // Move the DC motor forward at maximum speed
   Serial.println("Moving Forward");
   digitalWrite(motor1Pin1, LOW);
@@ -67,18 +71,20 @@ void loop() {
   digitalWrite(motor2Pin1, LOW);
   digitalWrite(motor2Pin2, LOW);
   delay(1000);
+  
 
   // Move DC motor forward with increasing speed
   digitalWrite(motor1Pin1, HIGH);
   digitalWrite(motor1Pin2, LOW);
   digitalWrite(motor2Pin1, HIGH);
   digitalWrite(motor2Pin2, LOW);
+  */
   while (dutyCycle <= 255){
     ledcWrite(pwmChannel, dutyCycle);   
     Serial.print("Forward with duty cycle: ");
     Serial.println(dutyCycle);
-    dutyCycle = dutyCycle + 5;
+    dutyCycle = dutyCycle + 10;
     delay(500);
   }
-  dutyCycle = 200;
+  dutyCycle = 0;
 }

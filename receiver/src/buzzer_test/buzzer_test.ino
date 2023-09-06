@@ -3,6 +3,15 @@ int buzzerPin = D4; // GPIO4
 void setup() {
   // sets the pins as outputs:
   pinMode(buzzerPin, OUTPUT);
+
+   sound_on();
+  delay(2000);
+
+  sound_ready();
+  delay(2000);
+
+  sound_error();
+  delay(2000);
 }
 
 
@@ -32,13 +41,6 @@ void sound_error(){
 void loop(){
 
 
-  sound_on();
-  delay(2000);
-
-  sound_ready();
-  delay(2000);
-
-  sound_error();
-  delay(2000);
+ 
   
 }

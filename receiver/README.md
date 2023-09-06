@@ -19,6 +19,10 @@ Vin: 6.5V to 45V
 2. Look at Serial Monitor and copy down resulting MAC address
 3. Copy this MAC Address into transmitter.ino
 
+OR
+
+Arduino IDE -> Tools -> Get Board Info
+
 #### Determine joystick rest values
 
 
