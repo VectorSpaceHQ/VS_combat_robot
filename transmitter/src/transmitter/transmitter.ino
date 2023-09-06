@@ -1,5 +1,8 @@
 #include <esp_now.h>
 #include <WiFi.h>
+#include <EEPROM.h>
+
+#define EEPROM_SIZE 10
 
 // REPLACE WITH THE MAC Address of your receiver
 uint8_t broadcastAddress[] = {0x10, 0x91, 0xA8, 0x00, 0xB9, 0xCC};
