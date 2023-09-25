@@ -1,8 +1,14 @@
+#include <Wire.h>
+#include <U8g2lib.h>
+
 #include <esp_now.h>
 #include <WiFi.h>
 #include <EEPROM.h>
 
+#include "screen_icons.h"
+
 #define EEPROM_SIZE 10
+
 
 // REPLACE WITH THE MAC Address of your receiver
 uint8_t broadcastAddress[] = {0x10, 0x91, 0xA8, 0x00, 0xB9, 0xCC};
@@ -18,12 +24,15 @@ typedef struct struct_message {
 } struct_message;
 struct_message myData;
 
+//LCD screen 
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C screen(U8G2_R0);
 
 // Joystick variables
 const int leftJoyPin = A1;
 const int rightJoyPin = A2; // D3 is actual but not working
 int leftVal;
 int rightVal;
+
 int deadband = 40;
 int leftRestVal = 1960;
 int leftRestMin = leftRestVal - deadband;
@@ -35,6 +44,7 @@ int rightRestMin = rightRestVal - deadband;
 int rightRestMax = rightRestVal + deadband;
 int rightMin = 1; // Find by testing
 int rightMax = 4095; // Find by testing
+
 
 int statusLED1 = D2;
 int commsLED = D3;
@@ -60,13 +70,16 @@ void setup() {
   pinMode(leftJoyPin, INPUT_PULLUP);
   pinMode(rightJoyPin, INPUT_PULLUP);
 
+
+    Serial.println("Starting up");
+    // blink indicator light on controller to show life
+    // establish bluetooth connection
+    // blink indicator light on bot to show life
+
+    setup_screen();
+
   espNowSetup();
 
-
-  Serial.println("Starting up");
-  // blink indicator light on controller to show life
-  // establish bluetooth connection
-  // blink indicator light on bot to show life
 }
 
 void espNowSetup() {
@@ -215,6 +228,8 @@ void check_voltage() {
 void loop() {
   read_jsticks();
   read_weapon();
+    update_screen();
+
 
   if(millis() - last_transmission > 50){
     last_transmission = millis();
@@ -223,4 +238,24 @@ void loop() {
   //debug_output();
   //send_data();
   //delay(100);
+
+}
+
+
+void setup_screen(){
+  screen.begin();
+}
+
+void update_screen(){
+  screen.clearBuffer();
+
+  //LEFT sidebar for controller data
+  screen.drawBox(16,0,2,64);
+  screen.drawXBMP(2,2,12,7,screen_icon_controller);
+
+  //RIGHT sidebar for robot data
+  screen.drawBox(109,0,2,64);
+  screen.drawXBMP(113,2,12,7,screen_icon_robot);
+
+  screen.sendBuffer();
 }
