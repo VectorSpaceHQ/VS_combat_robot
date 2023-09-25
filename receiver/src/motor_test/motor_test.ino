@@ -68,8 +68,8 @@ void loop() {
   while (dutyCycle <= 255){
     ledcWrite(M1C1, dutyCycle);  
     ledcWrite(M1C2,0); 
-    ledcWrite(M2C1, dutyCycle);  
-    ledcWrite(M2C2,0); 
+    ledcWrite(M2C1, 0);  
+    ledcWrite(M2C2,dutyCycle); 
     Serial.print("Forward with duty cycle: ");
     Serial.println(dutyCycle);
     dutyCycle = dutyCycle + 10;
@@ -80,8 +80,8 @@ void loop() {
   while (dutyCycle <= 255){
     ledcWrite(M1C1, 0);  
     ledcWrite(M1C2, dutyCycle); 
-    ledcWrite(M2C1, 0);  
-    ledcWrite(M2C2, dutyCycle); 
+    ledcWrite(M2C1, dutyCycle);  
+    ledcWrite(M2C2, 0); 
     Serial.print("Backward with duty cycle: ");
     Serial.println(dutyCycle);
     dutyCycle = dutyCycle + 10;

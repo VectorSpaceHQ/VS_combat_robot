@@ -1,5 +1,7 @@
 #include <WiFi.h>
 #include <esp_now.h>
+#include <Servo.h> // https://wokwi.com/projects/350037178957431378
+
 
 uint8_t broadcastAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x76, 0x20};
 
@@ -18,6 +20,8 @@ const int M2C2 = 3;
 const int buzzerChannel = 4;
 const int resolution = 8;
 int dutyCycle;
+
+Servo myservo = Servo();
 
 // Variable to store if sending data was successful
 String success;
@@ -58,6 +62,17 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.print(myData.rightBackward);
   Serial.print(", ");
   Serial.println(myData.weapon);
+}
+
+
+void arm_brushless() // https://www.helifreak.com/showthread.php?t=412147
+{
+  myservo.write(servoPin, 20);        // zero throttle
+  delay(4000);
+  myservo.write(servoPin, 90);        // mid throttle low tone
+  delay(2000);
+  myservo.write(servoPin, 20);        // set the servo position (degrees)
+  delay(200);
 }
 
 

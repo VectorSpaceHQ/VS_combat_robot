@@ -17,7 +17,6 @@ void setup() {
 
 void arm() // https://www.helifreak.com/showthread.php?t=412147
 {
-
   myservo.write(servoPin, 20);        // zero throttle
   delay(4000);
   myservo.write(servoPin, 90);        // mid throttle low tone

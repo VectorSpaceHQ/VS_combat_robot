@@ -2,6 +2,7 @@
   Controls servo position from 0-180 degrees and back
   https://wokwi.com/projects/350037178957431378
   by dlloydev, December 2022.
+  https://github.com/Dlloydev/ESP32-ESP32S2-AnalogWrite
 */
 
 #include <Servo.h>
