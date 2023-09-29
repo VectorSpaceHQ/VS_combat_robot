@@ -41,17 +41,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 }
 
 
-void arm_brushless() // https://www.helifreak.com/showthread.php?t=412147
-{
-  myservo.write(servoPin, 20);        // zero throttle
-  delay(4000);
-  myservo.write(servoPin, 90);        // mid throttle low tone
-  delay(2000);
-  myservo.write(servoPin, 20);        // set the servo position (degrees)
-  delay(200);
-}
-
-
 void setup() {
 
   currentState = RECEIVER_STATE_STARTUP;
@@ -153,12 +142,13 @@ void sound_ready(){
   delay(20);
   }
 
-void sound_error(){/*
-  tone(buzzerPin, 550, 250);
-  delay(7);
-  tone(buzzerPin, 150, 600);
-  noTone(buzzerPin);
-  delay(10);*/
+void sound_error(){
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 550);
+  delay(250);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 150);
+  delay(600);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
 }
 
 

@@ -1,8 +1,14 @@
 int buzzerPin = D4; // GPIO4
+const int resolution = 8;
+const int freq = 5000;
+const int buzzerChannel = 4;
 
 void setup() {
   // sets the pins as outputs:
   pinMode(buzzerPin, OUTPUT);
+
+  ledcSetup(buzzerChannel, freq, resolution);
+  ledcAttachPin(buzzerPin, buzzerChannel);
 
    sound_on();
   delay(2000);
@@ -16,26 +22,33 @@ void setup() {
 
 
 void sound_on(){
-  tone(buzzerPin, 247, 250);
-  delay(4 * 1.3);
-  tone(buzzerPin, 494, 250);
-  noTone(buzzerPin);
+  // Do not use tone as it interferes with ledc and the motor control
+  ledcWriteTone(buzzerChannel, 247);
+  delay(250);
+  ledcWriteTone(buzzerChannel, 494);
+  delay(500);
+  ledcWriteTone(buzzerChannel, 0);
+  delay(20);
 }
 
 void sound_ready(){
-  tone(buzzerPin, 400, 250);
-  delay(7);
-  tone(buzzerPin, 400, 250);
-  delay(7);
-  tone(buzzerPin, 2000, 500);
-  noTone(buzzerPin);
+  ledcWriteTone(buzzerChannel, 400);
+  delay(250);
+  ledcWriteTone(buzzerChannel, 400);
+  delay(250);
+  ledcWriteTone(buzzerChannel, 2000);
+  delay(500);
+  ledcWriteTone(buzzerChannel, 0);
+  delay(20);
   }
 
 void sound_error(){
-  tone(buzzerPin, 550, 250);
-  delay(7);
-  tone(buzzerPin, 150, 600);
-  noTone(buzzerPin);
+  ledcWriteTone(buzzerChannel, 550);
+  delay(250);
+  ledcWriteTone(buzzerChannel, 150);
+  delay(600);
+  ledcWriteTone(buzzerChannel, 0);
+  delay(20);
 }
 
 void loop(){
