@@ -6,3 +6,5 @@
 *kicad_prl
 *autosave*
 *.lck
+*.FCStd1
+*.log
