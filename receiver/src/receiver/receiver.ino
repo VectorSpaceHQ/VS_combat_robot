@@ -4,6 +4,7 @@
 #include "common.h"
 #include "drive_motor.h"
 #include "async_buzzer.h"
+#include <Servo.h>
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -18,6 +19,10 @@ DriveMotor rightMotor;
 ReceiverState currentState = RECEIVER_STATE_BOOT;
 ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
+
+Servo my_brushless_motor = Servo();
+const int motorPin = D5; //D5 is esc, D10 is servo
+
 
 //globals for communication
 uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x77, 0xDC};
@@ -40,6 +45,15 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&commandMessage, incomingData, sizeof(commandMessage));
 }
 
+void arm() // https://www.helifreak.com/showthread.php?t=412147
+{
+  my_brushless_motor.write(motorPin, 20);        // zero throttle
+  delay(4000);
+  my_brushless_motor.write(motorPin, 90);        // mid throttle low tone
+  delay(2000);
+  my_brushless_motor.write(motorPin, 20);        // set the servo position (degrees)
+  delay(200);
+}
 
 void setup() {
 
@@ -60,6 +74,7 @@ void setup() {
   Serial.println("right");
 
   sound_on();
+  arm();
   
   startupOK &= espNowSetup();
 
@@ -150,6 +165,16 @@ void sound_error(){
   ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
   delay(20);
 }
+void sound_comms(){
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
+  delay(150);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
+  delay(150);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
+  delay(150);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
+}
 
 
 void loop(){
@@ -157,6 +182,14 @@ void loop(){
   buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
+
+  if(commandMessage.weapon_speed > 10){
+    my_brushless_motor.write(motorPin, 180);        
+  }
+  else{
+    my_brushless_motor.write(motorPin, 20);  
+  }
+  
   
   if(currentState == RECEIVER_STATE_CONNECTING)
   {
@@ -164,7 +197,7 @@ void loop(){
     {
       currentState = RECEIVER_STATE_OPERATION;
       Serial.println("Command Message Received, transitioning to normal operation");
-      sound_ready();
+      sound_comms();
     }
   } else if (currentState == RECEIVER_STATE_OPERATION)
   {
