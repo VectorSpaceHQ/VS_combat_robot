@@ -20,7 +20,8 @@ bool DriveMotor::setup(int forwardPin, int backwardPin, int forwardChannel, int 
   _forwardChannel = forwardChannel;
   _backwardChannel = backwardChannel;
   _maxCommand = (1<<pwmResolution) -1;
-  
+
+  return _isSetup;
 }
 
 void DriveMotor::loop(int speed, bool enable)

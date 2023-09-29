@@ -10,10 +10,11 @@ AsyncBuzzer::AsyncBuzzer()
 bool AsyncBuzzer::setup(int pin, int pwmChannel)
 {
   pinMode(pin,OUTPUT);
-  ledcSetup(pwmChannel,DEFAULT_BUZZER_PWM_FREQUENCY,DEFAULT_BUZZER_PWM_RESOLUTION);
-  ledcAttachPin(pin,pwmChannel);
+  ledcSetup(pwmChannel, DEFAULT_BUZZER_PWM_FREQUENCY, DEFAULT_BUZZER_PWM_RESOLUTION);
+  ledcAttachPin(pin, pwmChannel);
   _pwmChannel = pwmChannel;
   _isSetup = true;
+  return _isSetup;
 }
 
 void AsyncBuzzer::loop()

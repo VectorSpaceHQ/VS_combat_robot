@@ -20,7 +20,7 @@ ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
 //globals for communication
-uint8_t transmitterAddress[] = {0x10, 0x91, 0xA8, 0x03, 0x67, 0xC0};
+uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x77, 0xDC};
 esp_now_peer_info_t transmitterCommsInfo;
 CommandMessage commandMessage;              //incoming
 ResponseMessage responseMessage;            //outgoing
@@ -52,11 +52,11 @@ void setup() {
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
 
-  //startupOK &= buzzer.setup(PIN_BUZZER, PWM_CHANNEL_BUZZER);
+  startupOK &= buzzer.setup(PIN_BUZZER, PWM_CHANNEL_BUZZER);
   Serial.println("buzz");
-  //startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
+  startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
   Serial.println("left");
-  //startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
+  startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
   Serial.println("right");
 
   sound_on();
@@ -123,23 +123,23 @@ bool espNowSetup()
 
 void sound_on(){
   // Do not use tone as it interferes with ledc and the motor control
-  // ledcWriteTone(buzzerChannel, 247);
-  // delay(250);
-  // ledcWriteTone(buzzerChannel, 494);
-  // delay(500);
-  // ledcWriteTone(buzzerChannel, 0);
-  // delay(20);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 247);
+  delay(250);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 494);
+  delay(500);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
 }
 
 void sound_ready(){
-  // ledcWriteTone(buzzerChannel, 400);
-  // delay(250);
-  // ledcWriteTone(buzzerChannel, 400);
-  // delay(250);
-  // ledcWriteTone(buzzerChannel, 2000);
-  // delay(500);
-  // ledcWriteTone(buzzerChannel, 0);
-  // delay(20);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 400);
+  delay(250);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 400);
+  delay(250);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 2000);
+  delay(500);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
   }
 
 void sound_error(){/*
