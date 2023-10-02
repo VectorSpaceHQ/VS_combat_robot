@@ -54,11 +54,13 @@ Command getVarCommand;//used to return values of certain internal variables
 long restartTime;//if non zero, board will restart if millis() > restart
 
 void setup() {
+  // TESTING -----
   comms_led.toggle();
   delay(1000);
   comms_led.toggle();
   delay(1000);
-
+  // -------- -----
+  
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 

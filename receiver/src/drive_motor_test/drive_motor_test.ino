@@ -1,3 +1,6 @@
+#include <math.h>
+#include "driver/ledc.h"
+#include "esp_err.h"
 /*********
   Rui Santos
   Complete project details at http://randomnerdtutorials.com  
@@ -15,13 +18,22 @@ int buzzerPin = D4; // GPIO4
 
 // Setting PWM properties
 const int freq = 5000;
+/*
 const int M1C1 = 0;
 const int M1C2 = 1;
 const int M2C1 = 2;
 const int M2C2 = 3;
+*/
 const int resolution = 8;
 int dutyCycle = 0;
 const int buzzerChannel = 4;
+
+
+const int M1C1 = 0;
+const int M1C2 = 2;
+const int M2C1 = 1;
+const int M2C2 = 4;
+
 
 
 void sound_on(){
@@ -53,6 +65,10 @@ void setup() {
   ledcAttachPin(motor1Pin2, M1C2);
   ledcAttachPin(motor2Pin1, M2C1);
   ledcAttachPin(motor2Pin2, M2C2);
+
+
+
+  
   ledcSetup(buzzerChannel, freq, resolution);
   ledcAttachPin(buzzerPin, buzzerChannel);
 
@@ -75,7 +91,7 @@ void loop() {
     dutyCycle = dutyCycle + 10;
     delay(500);
   }
-  dutyCycle = 0;
+  dutyCycle = 50;
 
   while (dutyCycle <= 255){
     ledcWrite(M1C1, 0);  
@@ -87,7 +103,7 @@ void loop() {
     dutyCycle = dutyCycle + 10;
     delay(500);
   }
-  dutyCycle = 0;
+  dutyCycle = 50;
 
   Serial.println("Stop");
   ledcWrite(M1C1, 255); 

@@ -58,11 +58,10 @@ void setup() {
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
 
   startupOK &= buzzer.setup(PIN_BUZZER, PWM_CHANNEL_BUZZER);
-  Serial.println("buzz");
   startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
-  Serial.println("left");
   startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
-  Serial.println("right");
+  //startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
+  //startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
 
   sound_on();
   weapon.arm();
@@ -73,7 +72,7 @@ void setup() {
   {
     currentState = RECEIVER_STATE_CRITICAL_FAULT;
     Serial.println("ERROR: Critical fault during startup is preventing transition to normal operation");
-    sound_error();
+    buzzer.error();
   } else {
     currentState = RECEIVER_STATE_CONNECTING;
     Serial.println("Startup Successful, transitioning to connection state");
@@ -109,7 +108,7 @@ bool espNowSetup()
   // Add peer        
   if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
     Serial.println("ERROR: Failed to add transmitter as peer");
-    sound_error();
+    buzzer.error();
     return false;
   }
   char messageBuffer[255];
@@ -138,6 +137,7 @@ void sound_on(){
 }
 
 void sound_ready(){
+  Serial.println("start ready");
   ledcWriteTone(PWM_CHANNEL_BUZZER, 400);
   delay(250);
   ledcWriteTone(PWM_CHANNEL_BUZZER, 400);
@@ -146,40 +146,10 @@ void sound_ready(){
   delay(500);
   ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
   delay(20);
+  Serial.println("end ready");
   }
 
-void sound_error(){
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 550);
-  delay(250);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 150);
-  delay(600);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(20);
-}
-void sound_comms(){
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
-  delay(150);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
-  delay(150);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 300);
-  delay(150);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(20);
-}
-void sound_horn(int freq){
-  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
-  delay(50);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(50);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
-  delay(50);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(50);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
-  delay(50);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(20);
-}
+
 
 
 void loop(){
@@ -187,7 +157,6 @@ void loop(){
   buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
-  //Serial.println(commandMessage.left_speed);
 
 
   if(commandMessage.weapon_speed > 20){
@@ -198,7 +167,7 @@ void loop(){
   }
 
   if (commandMessage.horn_frequency > 0){
-    sound_horn(commandMessage.horn_frequency);
+    buzzer.honk(commandMessage.horn_frequency);
   }
   
   
@@ -208,7 +177,7 @@ void loop(){
     {
       currentState = RECEIVER_STATE_OPERATION;
       Serial.println("Command Message Received, transitioning to normal operation");
-      sound_comms();
+      buzzer.comms();
     }
   } else if (currentState == RECEIVER_STATE_OPERATION)
   {
@@ -219,7 +188,7 @@ void loop(){
     {
       currentState = RECEIVER_STATE_CONNECTING;
       Serial.println("ERROR: Command message timeout, transitioning to connecting state");
-      sound_error();
+      buzzer.error();
     }
   }
 
