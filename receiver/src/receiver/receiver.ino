@@ -5,6 +5,7 @@
 #include "drive_motor.h"
 #include "async_buzzer.h"
 #include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
+#include "weapon.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -14,14 +15,14 @@
 AsyncBuzzer buzzer;
 DriveMotor leftMotor;
 DriveMotor rightMotor;
+Weapon weapon(D5);
 
 //globals for receiver states
 ReceiverState currentState = RECEIVER_STATE_BOOT;
 ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
-Servo my_brushless_motor = Servo();
-const int motorPin = D5; //D5 is esc, D10 is servo
+
 
 
 //globals for communication
@@ -45,15 +46,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&commandMessage, incomingData, sizeof(commandMessage));
 }
 
-void arm() // https://www.helifreak.com/showthread.php?t=412147
-{
-  my_brushless_motor.write(motorPin, 20);        // zero throttle
-  delay(4000);
-  my_brushless_motor.write(motorPin, 90);        // mid throttle low tone
-  delay(2000);
-  my_brushless_motor.write(motorPin, 20);        // set the servo position (degrees)
-  delay(200);
-}
 
 void setup() {
 
@@ -73,7 +65,10 @@ void setup() {
   Serial.println("right");
 
   sound_on();
-  //arm();
+  weapon.arm();
+  weapon.on();
+  delay(4000);
+  weapon.off();
   
   startupOK &= espNowSetup();
 

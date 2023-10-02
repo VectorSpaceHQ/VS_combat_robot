@@ -109,7 +109,7 @@ void loop() {
   leftJoystick.loop();
   rightJoystick.loop();
   update_screen();
-  comms_led.blink();
+  
 
   // TESTING --------------
   /*Serial.print(leftJoystick.getValue());
@@ -130,25 +130,24 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
+    comms_led.on();
     if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
     {
       Serial.println("ERROR: Lost connection with receiver");
       currentState = TRANSMITTER_STATE_CONNECTING;
-      digitalWrite(PIN_COMMS_LED,LOW);
+      
     }
   }
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)
   {
+    comms_led.blink();
     if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
     {
       Serial.println("Receiver response received. Transitioning to operation state");
       currentState = TRANSMITTER_STATE_OPERATION;
-      digitalWrite(PIN_COMMS_LED,HIGH);
     }
   }
-
-  
 
   if(restartTime > 0 && millis() > restartTime)
   {
