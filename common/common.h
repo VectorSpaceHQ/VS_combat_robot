@@ -7,9 +7,10 @@ enum TransmitterState : uint8_t
 {
 	TRANSMITTER_STATE_BOOT,				//initial state, sets up logs/serial then transitions to startup
 	TRANSMITTER_STATE_STARTUP,			//initializes all of the devices and configurations. transitions to connecting OR configuration when ready
-	TRANSMITTER_STATE_CONFIGURATION,		//a non-transmitting state meant for safe reconfiguration of settings. requires reboot to exit
-	TRANSMITTER_STATE_OPERATION,			//indefinite state. commands are transmitted cyclically
-	TRANSMITTER_STATE_CRITICAL_FAULT		//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
+  TRANSMITTER_STATE_CONNECTING,  //attempting to get in touch with a receiver transitions to OPERATION once a packet makes it back
+	TRANSMITTER_STATE_OPERATION,			//indefinite state. commands are transmitted cyclically. falls back to 
+	TRANSMITTER_STATE_CRITICAL_FAULT,		//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
+	TRANSMITTER_STATE_CONFIGURATION		//a non-transmitting state meant for safe reconfiguration of settings. requires reboot to exit
 };
 
 enum TransmitterFault : uint16_t

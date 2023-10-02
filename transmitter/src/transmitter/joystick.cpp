@@ -7,25 +7,27 @@ Joystick::Joystick(){
   _value = 0;
 }
 
-bool Joystick::setup(int analogPin, float neutralVoltage, float halfRangeVoltage, float deadbandVoltage)
+bool Joystick::setup(int analogPin, float neutralVoltage, float halfRangeVoltage, float deadbandVoltage, bool invert)
 {
+  _isSetup = false;
   _pin = analogPin;
   _upperNeutralVoltage = neutralVoltage + deadbandVoltage / 2;
   _lowerNeutralVoltage = neutralVoltage - deadbandVoltage / 2;
-  float adjustedHalfRangeVoltage = halfRangeVoltage - deadbandVoltage / 2;
-  if (adjustedHalfRangeVoltage = 0) return false;
-  _ticksPerVolt = (float)(0x7FFF) / adjustedHalfRangeVoltage;
-
+  float adjustedHalfRangeVoltage = abs(halfRangeVoltage) - deadbandVoltage / 2;
+  adjustedHalfRangeVoltage *= invert?-1:1;
+  if (adjustedHalfRangeVoltage == 0) return _isSetup;
+  _ticksPerVolt = (int)0x7FFF / adjustedHalfRangeVoltage;
+  Serial.println(_ticksPerVolt);
   pinMode(_pin,INPUT_PULLUP);
 
   _isSetup = true;
-  return true;
+  return _isSetup;
 }
 
-bool Joystick::setup(int analogPin, Preferences prefs, const char* name)
+bool Joystick::setup(int analogPin, Preferences prefs, const char* name, bool invert)
 {
   prefs.begin(name,true);
-  
+
   if(!prefs.isKey("NeutralVoltage")) {Serial.print("WARNING: No NeutralVoltage setting stored for "); Serial.println(name);}
   if(!prefs.isKey("HalfRangeVoltage")) {Serial.print("WARNING: No HalfRangeVoltage setting stored for "); Serial.println(name);}
   if(!prefs.isKey("DeadbandVoltage")) {Serial.print("WARNING: No DeadbandVoltage setting stored for "); Serial.println(name);}
@@ -34,32 +36,33 @@ bool Joystick::setup(int analogPin, Preferences prefs, const char* name)
   float halfRangeVoltage = prefs.getFloat("HalfRangeVoltage",DEFAULT_JOYSTICK_HALF_RANGE_VOLTAGE);
   float deadbandVoltage = prefs.getFloat("DeadbandVoltage",DEFAULT_JOYSTICK_DEADBAND_VOLTAGE);
   prefs.end();
-  return setup(analogPin, neutralVoltage, halfRangeVoltage, deadbandVoltage);
+  return setup(analogPin, neutralVoltage, halfRangeVoltage, deadbandVoltage, invert);
 }
 
-int16_t Joystick::readValue()
+void Joystick::updateValue()
 {
-  if(!_isSetup) return 0;
-  int32_t millivolts = analogReadMilliVolts(_pin);
-  float volts = millivolts / 1000.0;
+  _value = 0;
+  _volts = 0;
+  if(!isOK())
 
-  if (volts > _upperNeutralVoltage)
   {
-    return _ticksPerVolt * (volts - _upperNeutralVoltage);
-  } 
-  else if (volts < _lowerNeutralVoltage) 
-  {
-    return _ticksPerVolt * (volts - _upperNeutralVoltage);
+    Serial.println("ERROR: joystick not OK");
   }
-  else
+  int32_t millivolts = analogReadMilliVolts(_pin);
+  _volts = millivolts / 1000.0;
+  if (_volts > _upperNeutralVoltage)
   {
-    return 0;
+    _value = _ticksPerVolt * (_volts - _upperNeutralVoltage);
+  }
+  else if (_volts < _lowerNeutralVoltage)
+  {
+    _value = _ticksPerVolt * (_volts - _lowerNeutralVoltage);
   }
 }
 
 void Joystick::loop()
 {
-  _value = readValue();
+  updateValue();
 }
 
 int16_t Joystick::getValue()
@@ -67,7 +70,12 @@ int16_t Joystick::getValue()
   return _value;
 }
 
+float Joystick::getVoltage()
+{
+  return _volts;
+}
+
 bool Joystick::isOK()
 {
-  return _isSetup && (_value != 0);
+  return _isSetup;
 }

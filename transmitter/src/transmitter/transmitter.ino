@@ -13,6 +13,8 @@
 
 #define SOFTWARE_VERSION "v0.1"
 
+#define CONNECTION_TIMEOUT_MS 1000
+
 //globals from libraries
 Preferences preferences;
 SimpleCLI cli;
@@ -27,12 +29,19 @@ TransmitterWarning currentWarnings = TRANSMITTER_WARNING_NONE;
 esp_now_peer_info_t receiverCommsInfo;  
 CommandMessage commandMessage;          //outgoing
 ResponseMessage responseMessage;        //incoming
+long responseMessageTime;
+long roundtripTime;         
 
 //globals for hardware
 Joystick leftJoystick;
 Joystick rightJoystick;
+
 LED fault_led(PIN_FAULT_LED);
 LED comms_led(PIN_COMMS_LED);
+
+float batteryVoltage;
+float batteryVoltageMultiplier;
+
 
 //globals for CLI
 char cliResponseBuffer[256];
@@ -53,22 +62,28 @@ void setup() {
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 
-  pinMode(PIN_WEAPON_TOGGLE_SWITCH,INPUT_PULLUP);
-  pinMode(PIN_RIGHT_THUMB_SWITCH,INPUT_PULLUP);
-  pinMode(PIN_RIGHT_TRIGGER,INPUT_PULLUP);
-  pinMode(PIN_LEFT_TRIGGER,INPUT_PULLUP);
-  pinMode(PIN_BATTERY_SENSE,INPUT);
-
-  
-
   Serial.begin(115200);
-  //while (!Serial);//wait for serial to begin
   Serial.println("Vector Space {Combat Robot}");
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
 
-  startupOK &= leftJoystick.setup(PIN_LEFT_JOYSTICK,preferences,"LeftJoystick");
-  startupOK &= rightJoystick.setup(PIN_RIGHT_JOYSTICK,preferences,"RightJoystick");
+  startupOK &= leftJoystick.setup(PIN_LEFT_JOYSTICK,preferences,"LeftJoystick", true);
+  startupOK &= rightJoystick.setup(PIN_RIGHT_JOYSTICK,preferences,"RightJoystick", true);
+
+  pinMode(PIN_WEAPON_TOGGLE_SWITCH,INPUT_PULLUP);
+  pinMode(PIN_RIGHT_THUMB_SWITCH,INPUT_PULLUP);
+  pinMode(PIN_RIGHT_TRIGGER,INPUT_PULLUP);
+  pinMode(PIN_LEFT_TRIGGER,INPUT_PULLUP);
+  pinMode(PIN_BATTERY_SENSE,INPUT_PULLUP);
+  
+  pinMode(PIN_FAULT_LED,OUTPUT);
+  digitalWrite(PIN_FAULT_LED,LOW);
+  pinMode(PIN_COMMS_LED,OUTPUT);
+  digitalWrite(PIN_COMMS_LED,LOW);
+
+  preferences.begin("Battery");
+  batteryVoltageMultiplier = preferences.getFloat("Multiplier",DEFAULT_BATTERY_VOLTAGE_MULTIPLIER);
+  preferences.end();
 
   startupOK &= screenSetup();
   startupOK &= espNowSetup();
@@ -78,9 +93,11 @@ void setup() {
   {
     currentState = TRANSMITTER_STATE_CRITICAL_FAULT;
     Serial.println("ERROR: Critical fault during startup is preventing transition to normal operation");
+    digitalWrite(PIN_FAULT_LED,HIGH);
   } else {
-    currentState = TRANSMITTER_STATE_OPERATION;
-    Serial.println("Startup Successful, transitioning to normal operation");
+    currentState = TRANSMITTER_STATE_CONNECTING;
+    Serial.println("Startup Successful, transitioning to connecting state");
+    digitalWrite(PIN_FAULT_LED,LOW);
   }
   
     Serial.println();
@@ -101,12 +118,37 @@ void loop() {
   Serial.print("command id: ");
   Serial.println(responseMessage.command_id);*/
 
-  if(currentState == TRANSMITTER_STATE_OPERATION)
+  batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
+
+  if(currentState & (TRANSMITTER_STATE_OPERATION | TRANSMITTER_STATE_CONNECTING))
   {
     if(millis() - commandMessage.send_time > 50){
       sendCommand();
     }
+    
   }
+
+  if(currentState == TRANSMITTER_STATE_OPERATION)
+  {
+    if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
+    {
+      Serial.println("ERROR: Lost connection with receiver");
+      currentState = TRANSMITTER_STATE_CONNECTING;
+      digitalWrite(PIN_COMMS_LED,LOW);
+    }
+  }
+
+  if(currentState == TRANSMITTER_STATE_CONNECTING)
+  {
+    if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
+    {
+      Serial.println("Receiver response received. Transitioning to operation state");
+      currentState = TRANSMITTER_STATE_OPERATION;
+      digitalWrite(PIN_COMMS_LED,HIGH);
+    }
+  }
+
+  
 
   if(restartTime > 0 && millis() > restartTime)
   {
@@ -122,6 +164,8 @@ void loop() {
     Serial.print("> ");
   }
 
+
+  update_screen();
 }
 
 bool sendCommand() {
@@ -205,13 +249,19 @@ bool espNowSetup() {
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  
+  roundtripTime = 0;
 }
 
 // Callback when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&responseMessage, incomingData, sizeof(responseMessage));
-
+  responseMessageTime = millis();
+  if(responseMessage.command_id == commandMessage.id)
+  {
+    roundtripTime = millis() - commandMessage.send_time;
+  } else {
+    Serial.println("ERROR: response message received out of order");
+  }
 }
 
 
@@ -449,6 +499,13 @@ void getVariableCommandCallback(cmd* commandPointer)
   else if (variableName.equalsIgnoreCase("commandMessageId")) Serial.println(commandMessage.id);
   else if (variableName.equalsIgnoreCase("commandMessageTime")) Serial.println(commandMessage.id);
   else if (variableName.equalsIgnoreCase("responseMessageId")) Serial.println(responseMessage.command_id);
+  else if (variableName.equalsIgnoreCase("leftSpeed")) Serial.println(commandMessage.left_speed);
+  else if (variableName.equalsIgnoreCase("rightSpeed")) Serial.println(commandMessage.right_speed);
+  else if (variableName.equalsIgnoreCase("leftStickV")) Serial.println(leftJoystick.getVoltage());
+  else if (variableName.equalsIgnoreCase("rightStickV")) Serial.println(rightJoystick.getVoltage());
+  else if (variableName.equalsIgnoreCase("weaponSpeed")) Serial.println(commandMessage.weapon_speed);
+  else if (variableName.equalsIgnoreCase("batteryVoltage")) Serial.println(batteryVoltage);
+  else if (variableName.equalsIgnoreCase("hornFreq")) Serial.println(commandMessage.horn_frequency);
   else Serial.println("Variable is not supported by this command");
 }
 
