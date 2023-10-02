@@ -4,7 +4,8 @@
 #include "common.h"
 #include "drive_motor.h"
 #include "async_buzzer.h"
-#include <Servo.h>
+#include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
+#include "weapon.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -14,14 +15,14 @@
 AsyncBuzzer buzzer;
 DriveMotor leftMotor;
 DriveMotor rightMotor;
+Weapon weapon(D5);
 
 //globals for receiver states
 ReceiverState currentState = RECEIVER_STATE_BOOT;
 ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
-Servo my_brushless_motor = Servo();
-const int motorPin = D5; //D5 is esc, D10 is servo
+
 
 
 //globals for communication
@@ -45,15 +46,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&commandMessage, incomingData, sizeof(commandMessage));
 }
 
-void arm() // https://www.helifreak.com/showthread.php?t=412147
-{
-  my_brushless_motor.write(motorPin, 20);        // zero throttle
-  delay(4000);
-  my_brushless_motor.write(motorPin, 90);        // mid throttle low tone
-  delay(2000);
-  my_brushless_motor.write(motorPin, 20);        // set the servo position (degrees)
-  delay(200);
-}
 
 void setup() {
 
@@ -61,7 +53,6 @@ void setup() {
   bool startupOK = true;
 
   Serial.begin(115200);
-  while (!Serial);//wait for serial to begin
   Serial.println("Vector Space {Combat Robot}");
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
@@ -74,7 +65,7 @@ void setup() {
   Serial.println("right");
 
   sound_on();
-  arm();
+  weapon.arm();
   
   startupOK &= espNowSetup();
 
@@ -175,6 +166,20 @@ void sound_comms(){
   ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
   delay(20);
 }
+void sound_horn(int freq){
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
+}
 
 
 void loop(){
@@ -182,12 +187,18 @@ void loop(){
   buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
+  //Serial.println(commandMessage.left_speed);
 
-  if(commandMessage.weapon_speed > 10){
-    my_brushless_motor.write(motorPin, 180);        
+
+  if(commandMessage.weapon_speed > 20){
+    weapon.on();      
   }
   else{
-    my_brushless_motor.write(motorPin, 20);  
+    weapon.off();  
+  }
+
+  if (commandMessage.horn_frequency > 0){
+    sound_horn(commandMessage.horn_frequency);
   }
   
   

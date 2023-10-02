@@ -53,7 +53,7 @@ void setup() {
   delay(2000);
 
 
-  Serial.println("Hold left joystick forward");
+  Serial.println("Hold LEFT joystick forward");
   while((4095- analogRead(leftJoyPin)) < 3500){
     delay(10);
   }
@@ -73,7 +73,7 @@ void setup() {
   Serial.println(leftMax);
   
 
-  Serial.println("Hold left joystick backward");
+  Serial.println("Hold LEFT joystick backward");
   while((4095-analogRead(leftJoyPin)) > 500){
      delay(10);
   }
@@ -92,7 +92,7 @@ void setup() {
   Serial.println(leftMin);
   
 
-  Serial.println("Let go of left joystick");
+  Serial.println("Let go of LEFT joystick");
   while((4095-analogRead(leftJoyPin)) < 1500 or (4095-analogRead(leftJoyPin)) > 3000){
      delay(10);
   }

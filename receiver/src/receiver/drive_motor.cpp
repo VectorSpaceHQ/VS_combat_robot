@@ -27,7 +27,7 @@ bool DriveMotor::setup(int forwardPin, int backwardPin, int forwardChannel, int 
 void DriveMotor::loop(int speed, bool enable)
 {
   if(!_isSetup) return;
-  Serial.println(speed);
+  
 
   if(enable)
   {
@@ -39,7 +39,7 @@ void DriveMotor::loop(int speed, bool enable)
     {
       ledcWrite(_forwardChannel,0);
       ledcWrite(_backwardChannel,map(speed,0,-1*0x7fff,0,_maxCommand));
-    } else {
+    } else { // brakes
       ledcWrite(_forwardChannel,_maxCommand);
       ledcWrite(_backwardChannel,_maxCommand);
     }
