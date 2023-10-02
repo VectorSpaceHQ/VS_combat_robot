@@ -9,6 +9,7 @@
 #include "common.h"
 #include "screen_icons.h"
 #include "joystick.h"
+#include "diagnostics.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -30,6 +31,8 @@ ResponseMessage responseMessage;        //incoming
 //globals for hardware
 Joystick leftJoystick;
 Joystick rightJoystick;
+LED fault_led(PIN_FAULT_LED);
+LED comms_led(PIN_COMMS_LED);
 
 //globals for CLI
 char cliResponseBuffer[256];
@@ -42,6 +45,11 @@ Command getVarCommand;//used to return values of certain internal variables
 long restartTime;//if non zero, board will restart if millis() > restart
 
 void setup() {
+  comms_led.toggle();
+  delay(1000);
+  comms_led.toggle();
+  delay(1000);
+
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 
@@ -50,16 +58,8 @@ void setup() {
   pinMode(PIN_RIGHT_TRIGGER,INPUT_PULLUP);
   pinMode(PIN_LEFT_TRIGGER,INPUT_PULLUP);
   pinMode(PIN_BATTERY_SENSE,INPUT);
-  
-  pinMode(PIN_FAULT_LED,OUTPUT);
-  pinMode(PIN_COMMS_LED,OUTPUT);
 
-  digitalWrite(PIN_FAULT_LED, LOW);
-  digitalWrite(PIN_COMMS_LED, LOW);
-  delay(4000);
-  digitalWrite(PIN_FAULT_LED, HIGH);
-  digitalWrite(PIN_COMMS_LED, HIGH);
-  delay(4000);
+  
 
   Serial.begin(115200);
   //while (!Serial);//wait for serial to begin
@@ -92,6 +92,14 @@ void loop() {
   leftJoystick.loop();
   rightJoystick.loop();
   update_screen();
+  comms_led.blink();
+
+  // TESTING --------------
+  /*Serial.print(leftJoystick.getValue());
+  Serial.print(", ");
+  Serial.println(rightJoystick.getValue());
+  Serial.print("command id: ");
+  Serial.println(responseMessage.command_id);*/
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
@@ -122,7 +130,7 @@ bool sendCommand() {
   commandMessage.left_speed = leftJoystick.getValue();
   commandMessage.right_speed = rightJoystick.getValue();
   commandMessage.weapon_speed = digitalRead(PIN_WEAPON_TOGGLE_SWITCH) ? DEFAULT_WEAPON_SPEED : 0;
-  commandMessage.horn_frequency = digitalRead(PIN_RIGHT_THUMB_SWITCH) ? DEFAULT_HORN_FREQUENCY : 0;
+  commandMessage.horn_frequency = digitalRead(PIN_RIGHT_THUMB_SWITCH) ? 0 : DEFAULT_HORN_FREQUENCY;
   commandMessage.servo_position = 0;
   commandMessage.clear_faults = RECEIVER_FAULT_NONE;
   commandMessage.clear_warnings = RECEIVER_WARNING_NONE;

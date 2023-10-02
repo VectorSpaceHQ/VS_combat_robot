@@ -27,6 +27,7 @@ bool DriveMotor::setup(int forwardPin, int backwardPin, int forwardChannel, int 
 void DriveMotor::loop(int speed, bool enable)
 {
   if(!_isSetup) return;
+  Serial.print("drive speed: ");
   Serial.println(speed);
 
   if(enable)

@@ -61,7 +61,6 @@ void setup() {
   bool startupOK = true;
 
   Serial.begin(115200);
-  while (!Serial);//wait for serial to begin
   Serial.println("Vector Space {Combat Robot}");
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
@@ -175,6 +174,20 @@ void sound_comms(){
   ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
   delay(20);
 }
+void sound_horn(int freq){
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, freq);
+  delay(50);
+  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
+  delay(20);
+}
 
 
 void loop(){
@@ -190,6 +203,10 @@ void loop(){
   else{
     my_brushless_motor.write(motorPin, 20);  
   }*/
+
+  if (commandMessage.horn_frequency > 0){
+    sound_horn(commandMessage.horn_frequency);
+  }
   
   
   if(currentState == RECEIVER_STATE_CONNECTING)

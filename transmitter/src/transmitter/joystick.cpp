@@ -42,6 +42,7 @@ int16_t Joystick::readValue()
   if(!_isSetup) return 0;
   int32_t millivolts = analogReadMilliVolts(_pin);
   float volts = millivolts / 1000.0;
+
   if (volts > _upperNeutralVoltage)
   {
     return _ticksPerVolt * (volts - _upperNeutralVoltage);
