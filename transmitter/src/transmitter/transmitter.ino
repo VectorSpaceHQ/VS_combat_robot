@@ -45,15 +45,6 @@ void setup() {
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 
-  Serial.begin(115200);
-  while (!Serial);//wait for serial to begin
-  Serial.println("Vector Space {Combat Robot}");
-  Serial.println(SOFTWARE_VERSION);
-  Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
-
-  startupOK &= leftJoystick.setup(PIN_LEFT_JOYSTICK,preferences,"LeftJoystick");
-  startupOK &= rightJoystick.setup(PIN_RIGHT_JOYSTICK,preferences,"RightJoystick");
-
   pinMode(PIN_WEAPON_TOGGLE_SWITCH,INPUT_PULLUP);
   pinMode(PIN_RIGHT_THUMB_SWITCH,INPUT_PULLUP);
   pinMode(PIN_RIGHT_TRIGGER,INPUT_PULLUP);
@@ -62,6 +53,22 @@ void setup() {
   
   pinMode(PIN_FAULT_LED,OUTPUT);
   pinMode(PIN_COMMS_LED,OUTPUT);
+
+  digitalWrite(PIN_FAULT_LED, LOW);
+  digitalWrite(PIN_COMMS_LED, LOW);
+  delay(4000);
+  digitalWrite(PIN_FAULT_LED, HIGH);
+  digitalWrite(PIN_COMMS_LED, HIGH);
+  delay(4000);
+
+  Serial.begin(115200);
+  //while (!Serial);//wait for serial to begin
+  Serial.println("Vector Space {Combat Robot}");
+  Serial.println(SOFTWARE_VERSION);
+  Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
+
+  startupOK &= leftJoystick.setup(PIN_LEFT_JOYSTICK,preferences,"LeftJoystick");
+  startupOK &= rightJoystick.setup(PIN_RIGHT_JOYSTICK,preferences,"RightJoystick");
 
   startupOK &= screenSetup();
   startupOK &= espNowSetup();

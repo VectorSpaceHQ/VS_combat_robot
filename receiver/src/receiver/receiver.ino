@@ -4,7 +4,7 @@
 #include "common.h"
 #include "drive_motor.h"
 #include "async_buzzer.h"
-#include <Servo.h>
+#include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -74,7 +74,7 @@ void setup() {
   Serial.println("right");
 
   sound_on();
-  arm();
+  //arm();
   
   startupOK &= espNowSetup();
 
@@ -183,12 +183,13 @@ void loop(){
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
 
+/*
   if(commandMessage.weapon_speed > 10){
     my_brushless_motor.write(motorPin, 180);        
   }
   else{
     my_brushless_motor.write(motorPin, 20);  
-  }
+  }*/
   
   
   if(currentState == RECEIVER_STATE_CONNECTING)
