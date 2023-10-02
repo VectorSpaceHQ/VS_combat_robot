@@ -66,9 +66,6 @@ void setup() {
 
   sound_on();
   weapon.arm();
-  weapon.on();
-  delay(4000);
-  weapon.off();
   
   startupOK &= espNowSetup();
 
@@ -190,14 +187,15 @@ void loop(){
   buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
+  //Serial.println(commandMessage.left_speed);
 
-/*
-  if(commandMessage.weapon_speed > 10){
-    my_brushless_motor.write(motorPin, 180);        
+
+  if(commandMessage.weapon_speed > 20){
+    weapon.on();      
   }
   else{
-    my_brushless_motor.write(motorPin, 20);  
-  }*/
+    weapon.off();  
+  }
 
   if (commandMessage.horn_frequency > 0){
     sound_horn(commandMessage.horn_frequency);
