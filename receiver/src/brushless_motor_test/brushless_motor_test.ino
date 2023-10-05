@@ -5,9 +5,9 @@
 */
 
 #include <Servo.h>
-Servo myservo = Servo();
+Servo my_brushless_motor = Servo();
 
-const int servoPin = D5; //D5 is esc, D10 is servo
+const int motorPin = D5; //D5 is esc, D10 is servo
 
 void setup() {  
   arm();
@@ -17,24 +17,23 @@ void setup() {
 
 void arm() // https://www.helifreak.com/showthread.php?t=412147
 {
-
-  myservo.write(servoPin, 20);        // zero throttle
+  my_brushless_motor.write(motorPin, 20);        // zero throttle
   delay(4000);
-  myservo.write(servoPin, 90);        // mid throttle low tone
+  my_brushless_motor.write(motorPin, 90);        // mid throttle low tone
   delay(2000);
-  myservo.write(servoPin, 20);        // set the servo position (degrees)
+  my_brushless_motor.write(motorPin, 20);        // set the servo position (degrees)
   delay(200);
 }
 
 
 void loop() {
-  for (int pos = 20; pos <= 180; pos++) {  // go from 0-180 degrees
-    myservo.write(servoPin, pos);        // set the servo position (degrees)
+  for (int pos = 20; pos <= 180; pos++) { 
+    my_brushless_motor.write(motorPin, pos);        
     delay(15);
   }
   delay(500);
   for (int pos = 180; pos >= 20; pos--) {  // go from 180-0 degrees
-    myservo.write(servoPin, pos);        // set the servo position (degrees)
+    my_brushless_motor.write(motorPin, pos);        // set the servo position (degrees)
     delay(15);
   }
   delay(500);

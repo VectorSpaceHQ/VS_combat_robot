@@ -34,3 +34,41 @@ void AsyncBuzzer::writeTone(int frequency, int duration)
     ledcWriteTone(_pwmChannel,frequency);
   }
 }
+
+void AsyncBuzzer::honk(int frequency)
+{
+  ledcWriteTone(_pwmChannel, frequency);
+  delay(50);
+  ledcWriteTone(_pwmChannel, 0);
+  delay(50);
+  ledcWriteTone(_pwmChannel, frequency);
+  delay(50);
+  ledcWriteTone(_pwmChannel, 0);
+  delay(50);
+  ledcWriteTone(_pwmChannel, frequency);
+  delay(50);
+  ledcWriteTone(_pwmChannel, 0);
+  delay(20);
+}
+
+void AsyncBuzzer::comms()
+{
+  ledcWriteTone(_pwmChannel, 300);
+  delay(150);
+  ledcWriteTone(_pwmChannel, 300);
+  delay(150);
+  ledcWriteTone(_pwmChannel, 300);
+  delay(150);
+  ledcWriteTone(_pwmChannel, 0);
+  delay(20);
+}
+
+void AsyncBuzzer::error()
+{
+  ledcWriteTone(_pwmChannel, 550);
+  delay(250);
+  ledcWriteTone(_pwmChannel, 150);
+  delay(600);
+  ledcWriteTone(_pwmChannel, 0);
+  delay(20);
+}

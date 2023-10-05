@@ -12,6 +12,9 @@ class AsyncBuzzer {
     bool setup(int pin, int pwmChannel);
     void loop();
     void writeTone(int frequency, int duration);
+    void honk(int frequency);
+    void comms();
+    void error();
   private:
     bool _isSetup;
     bool _isEnabled;

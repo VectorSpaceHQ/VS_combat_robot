@@ -10,6 +10,7 @@
 #include "common.h"
 #include "screen_icons.h"
 #include "joystick.h"
+#include "diagnostics.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -36,8 +37,13 @@ long roundtripTime;
 //globals for hardware
 Joystick leftJoystick;
 Joystick rightJoystick;
+
+LED fault_led(PIN_FAULT_LED);
+LED comms_led(PIN_COMMS_LED);
+
 float batteryVoltage;
 float batteryVoltageMultiplier;
+
 
 //globals for CLI
 char cliResponseBuffer[256];
@@ -47,11 +53,17 @@ Command getVarCommand;//used to return values of certain internal variables
 long restartTime;//if non zero, board will restart if millis() > restart
 
 void setup() {
+  // TESTING -----
+  comms_led.toggle();
+  delay(1000);
+  comms_led.toggle();
+  delay(1000);
+  // -------- -----
+  
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 
   Serial.begin(115200);
-  while (!Serial);//wait for serial to begin
   Serial.println("Vector Space {Combat Robot}");
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
@@ -97,6 +109,15 @@ void loop() {
 
   leftJoystick.loop();
   rightJoystick.loop();
+  update_screen();
+  
+
+  // TESTING --------------
+  /*Serial.print(leftJoystick.getValue());
+  Serial.print(", ");
+  Serial.println(rightJoystick.getValue());
+  Serial.print("command id: ");
+  Serial.println(responseMessage.command_id);*/
 
   batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
 
@@ -110,25 +131,24 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
+    comms_led.on();
     if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
     {
       Serial.println("ERROR: Lost connection with receiver");
       currentState = TRANSMITTER_STATE_CONNECTING;
-      digitalWrite(PIN_COMMS_LED,LOW);
+      
     }
   }
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)
   {
+    comms_led.blink();
     if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
     {
       Serial.println("Receiver response received. Transitioning to operation state");
       currentState = TRANSMITTER_STATE_OPERATION;
-      digitalWrite(PIN_COMMS_LED,HIGH);
     }
   }
-
-  
 
   if(restartTime > 0 && millis() > restartTime)
   {

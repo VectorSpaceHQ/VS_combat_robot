@@ -16,3 +16,5 @@ transmitter/src/UiUiUi_Tests/Test/debug.cfg
 transmitter/src/UiUiUi_Tests/Test/debug_custom.json
 transmitter/src/UiUiUi_Tests/Test/esp32c3.svd
 transmitter/src/transmitter/common.h
+*.FCStd1
+*.log

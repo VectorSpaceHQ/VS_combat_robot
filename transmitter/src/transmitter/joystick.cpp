@@ -27,7 +27,7 @@ bool Joystick::setup(int analogPin, float neutralVoltage, float halfRangeVoltage
 bool Joystick::setup(int analogPin, Preferences prefs, const char* name, bool invert)
 {
   prefs.begin(name,true);
-  
+
   if(!prefs.isKey("NeutralVoltage")) {Serial.print("WARNING: No NeutralVoltage setting stored for "); Serial.println(name);}
   if(!prefs.isKey("HalfRangeVoltage")) {Serial.print("WARNING: No HalfRangeVoltage setting stored for "); Serial.println(name);}
   if(!prefs.isKey("DeadbandVoltage")) {Serial.print("WARNING: No DeadbandVoltage setting stored for "); Serial.println(name);}
@@ -44,6 +44,7 @@ void Joystick::updateValue()
   _value = 0;
   _volts = 0;
   if(!isOK())
+
   {
     Serial.println("ERROR: joystick not OK");
   }
@@ -52,8 +53,8 @@ void Joystick::updateValue()
   if (_volts > _upperNeutralVoltage)
   {
     _value = _ticksPerVolt * (_volts - _upperNeutralVoltage);
-  } 
-  else if (_volts < _lowerNeutralVoltage) 
+  }
+  else if (_volts < _lowerNeutralVoltage)
   {
     _value = _ticksPerVolt * (_volts - _lowerNeutralVoltage);
   }
