@@ -6,3 +6,12 @@
 *kicad_prl
 *autosave*
 *.lck
+receiver/src/receiver/debug.cfg
+receiver/src/receiver/debug_custom.json
+receiver/src/receiver/esp32c3.svd
+transmitter/src/transmitter/debug.cfg
+transmitter/src/transmitter/debug_custom.json
+transmitter/src/transmitter/esp32c3.svd
+transmitter/src/UiUiUi_Tests/Test/debug.cfg
+transmitter/src/UiUiUi_Tests/Test/debug_custom.json
+transmitter/src/UiUiUi_Tests/Test/esp32c3.svd
