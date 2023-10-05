@@ -7,6 +7,7 @@
 #include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
 #include "weapon.h"
 
+
 #define SOFTWARE_VERSION "v0.1"
 
 #define CONNECTION_TIMEOUT_MS 1000
@@ -58,14 +59,16 @@ void setup() {
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
 
   startupOK &= buzzer.setup(PIN_BUZZER, PWM_CHANNEL_BUZZER);
-  startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
-  startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
-  //startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD);
-  //startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD);
+  /* startupOK &= leftMotor.setup(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD, PWM_CHANNEL_LEFT_FORWARD, PWM_CHANNEL_LEFT_BACKWARD); */
+  /* startupOK &= rightMotor.setup(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD, PWM_CHANNEL_RIGHT_FORWARD, PWM_CHANNEL_RIGHT_BACKWARD); */
+  startupOK &= leftMotor.init(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD,
+                              LEDC_TIMER_2, LEDC_CHANNEL_2, LEDC_CHANNEL_3);
+  startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
+                               LEDC_TIMER_2, LEDC_CHANNEL_0, LEDC_CHANNEL_1);
 
   sound_on();
   weapon.arm();
-  
+
   startupOK &= espNowSetup();
 
   if(!startupOK)
@@ -102,10 +105,10 @@ bool espNowSetup()
 
   // Register peer
   memcpy(transmitterCommsInfo.peer_addr, transmitterAddress, 6);
-  transmitterCommsInfo.channel = 0;  
+  transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
-  
-  // Add peer        
+
+  // Add peer
   if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
     Serial.println("ERROR: Failed to add transmitter as peer");
     buzzer.error();
@@ -160,17 +163,17 @@ void loop(){
 
 
   if(commandMessage.weapon_speed > 20){
-    weapon.on();      
+    weapon.on();
   }
   else{
-    weapon.off();  
+    weapon.off();
   }
 
   if (commandMessage.horn_frequency > 0){
     buzzer.honk(commandMessage.horn_frequency);
   }
-  
-  
+
+
   if(currentState == RECEIVER_STATE_CONNECTING)
   {
     if(commandMessage.id != responseMessage.command_id)
@@ -193,7 +196,7 @@ void loop(){
   }
 
   delay(10);
-  
+
 }
 
 
