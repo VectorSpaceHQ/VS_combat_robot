@@ -22,7 +22,7 @@ class DriveMotor{
     ledc_channel_t _forwardChannel;
     ledc_channel_t _backwardChannel;
     ledc_timer_t _timer;
-    int _maxCommand;
+    int _maxCommand = (1<<DEFAULT_DRIVE_PWM_RESOLUTION) -1;
 };
 
 #endif

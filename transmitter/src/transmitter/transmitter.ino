@@ -10,7 +10,7 @@
 #include "common.h"
 #include "screen_icons.h"
 #include "joystick.h"
-#include "diagnostics.h"
+//#include "diagnostics.h"
 
 #define SOFTWARE_VERSION "v0.1"
 

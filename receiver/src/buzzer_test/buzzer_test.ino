@@ -1,4 +1,4 @@
-int buzzerPin = D4; // GPIO4
+int buzzerPin = 6; // GPIO4, D4
 const int resolution = 8;
 const int freq = 5000;
 const int buzzerChannel = 4;

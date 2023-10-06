@@ -32,8 +32,10 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
     _forwardChannel = channelA;
     _backwardChannel = channelB;
 
+
     pinMode(PinA, OUTPUT);
     pinMode(PinB, OUTPUT);
+    timerA = LEDC_TIMER_2;
 
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
@@ -99,14 +101,12 @@ void DriveMotor::loop(int speed, bool enable)
 }*/
 
 void DriveMotor::loop(int speed, bool enable){
-    
     int cmd;
-
     if(!_isSetup) return;
-
 
     if(enable)
     {
+        
         if(speed > 0)
         {
             cmd = map(speed,0,0x7fff,0,_maxCommand);
@@ -114,6 +114,9 @@ void DriveMotor::loop(int speed, bool enable){
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, 0) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
+            
+            
+
         } else if(speed < 0)
         {
             cmd = map(speed,0,-1*0x7fff,0,_maxCommand);
@@ -121,6 +124,13 @@ void DriveMotor::loop(int speed, bool enable){
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, cmd) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
+            /*Serial.print("forward, ");
+            Serial.print(speed);
+            Serial.print(", ");
+            Serial.print(_maxCommand);
+            Serial.print(", ");
+            Serial.println(cmd);*/
+            Serial.println(speed);
         } else { // brakes
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, _maxCommand) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );

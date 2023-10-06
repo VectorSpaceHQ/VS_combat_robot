@@ -9,10 +9,32 @@ AsyncBuzzer::AsyncBuzzer()
 
 bool AsyncBuzzer::setup(int pin, int pwmChannel)
 {
-  pinMode(pin,OUTPUT);
-  ledcSetup(pwmChannel, DEFAULT_BUZZER_PWM_FREQUENCY, DEFAULT_BUZZER_PWM_RESOLUTION);
-  ledcAttachPin(pin, pwmChannel);
-  _pwmChannel = pwmChannel;
+  _pin = pin;
+  pinMode(_pin, OUTPUT);
+  delay(2000);
+
+  ledc_timer_config_t ledc_timer = {
+      .speed_mode       = LEDC_LOW_SPEED_MODE,
+      .duty_resolution  = LEDC_TIMER_13_BIT,
+      .timer_num        = _timer,
+      .freq_hz          = 5000,
+      .clk_cfg          = LEDC_AUTO_CLK
+  };
+  ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
+
+  // Prepare and then apply the LEDC PWM channel configuration
+  ledc_channel_config_t ledc_channel1 = {
+      .gpio_num       = _pin,
+      .speed_mode     = LEDC_LOW_SPEED_MODE,
+      .channel        = _channel,
+      .intr_type      = LEDC_INTR_DISABLE,
+      .timer_sel      = _timer,
+      .duty           = 0, // Set duty to 0%
+      .hpoint         = 0
+  };
+  ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel1));
+
+
   _isSetup = true;
   return _isSetup;
 }
@@ -21,7 +43,9 @@ void AsyncBuzzer::loop()
 {
   if(_isSetup && _isEnabled && millis() >= _offTime)
   {
-    ledcWriteTone(_pwmChannel,0);
+    // ledcWriteTone(_pwmChannel,0);
+    ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+    ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
     _isEnabled = false;
   }
 }
@@ -37,38 +61,60 @@ void AsyncBuzzer::writeTone(int frequency, int duration)
 
 void AsyncBuzzer::honk(int frequency)
 {
-  ledcWriteTone(_pwmChannel, frequency);
-  delay(50);
-  ledcWriteTone(_pwmChannel, 0);
-  delay(50);
-  ledcWriteTone(_pwmChannel, frequency);
-  delay(50);
-  ledcWriteTone(_pwmChannel, 0);
-  delay(50);
-  ledcWriteTone(_pwmChannel, frequency);
-  delay(50);
-  ledcWriteTone(_pwmChannel, 0);
-  delay(20);
+    for(int i=0;i<4;i++){
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 2000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(50);
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(50);
+    }
 }
 
 void AsyncBuzzer::comms()
 {
-  ledcWriteTone(_pwmChannel, 300);
-  delay(150);
-  ledcWriteTone(_pwmChannel, 300);
-  delay(150);
-  ledcWriteTone(_pwmChannel, 300);
-  delay(150);
-  ledcWriteTone(_pwmChannel, 0);
-  delay(20);
+
+  ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 1000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(150);
+        
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(50);
+
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 1000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(150);
+        
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
 }
 
 void AsyncBuzzer::error()
 {
-  ledcWriteTone(_pwmChannel, 550);
-  delay(250);
-  ledcWriteTone(_pwmChannel, 150);
-  delay(600);
-  ledcWriteTone(_pwmChannel, 0);
-  delay(20);
+  ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 6000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(250);
+
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 1000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(600);
+        
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+}
+
+
+void AsyncBuzzer::ready()
+{
+  ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 1500) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(500);
+
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 7000) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+        delay(500);
+        
+        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, 0) );
+        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
 }
