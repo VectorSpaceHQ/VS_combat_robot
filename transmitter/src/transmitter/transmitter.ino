@@ -8,9 +8,11 @@
 #include <PreferencesCLI.h>
 #include "hardware.h"
 #include "common.h"
-#include "screen_icons.h"
 #include "joystick.h"
-#include "diagnostics.h"
+//#include "diagnostics.h"
+#include "UiUiUi.h" //DOWNLOAD FROM HERE BECAUSE IT HAS FIXES NOT IN ARDUINO VERSION: https://github.com/burksbuilds/UiUiUi
+#include "UIStatusIndicator.h"
+#include "UISidebar.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -20,7 +22,6 @@
 Preferences preferences;
 SimpleCLI cli;
 PreferencesCLI prefCli(preferences);
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C screen(U8G2_R2);
 
 //globals for transmitter states
 TransmitterState currentState = TRANSMITTER_STATE_BOOT;
@@ -38,8 +39,8 @@ long roundtripTime;
 Joystick leftJoystick;
 Joystick rightJoystick;
 
-LED fault_led(PIN_FAULT_LED);
-LED comms_led(PIN_COMMS_LED);
+//LED fault_led(PIN_FAULT_LED);
+//LED comms_led(PIN_COMMS_LED);
 
 float batteryVoltage;
 float batteryVoltageMultiplier;
@@ -52,12 +53,18 @@ Command restartCommand;//command used to restart the transmitter or receiver
 Command getVarCommand;//used to return values of certain internal variables
 long restartTime;//if non zero, board will restart if millis() > restart
 
+//globals for screen
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C screen(U8G2_R2);
+UISidebar controllerSidebar = UISidebar(screen_icon_controller);
+UIDisplay displayManager=UIDisplay(&controllerSidebar);
+
+
 void setup() {
   // TESTING -----
-  comms_led.toggle();
-  delay(1000);
-  comms_led.toggle();
-  delay(1000);
+  //comms_led.toggle();
+  //delay(1000);
+  //comms_led.toggle();
+  //delay(1000);
   // -------- -----
   
   currentState = TRANSMITTER_STATE_STARTUP;
@@ -109,7 +116,6 @@ void loop() {
 
   leftJoystick.loop();
   rightJoystick.loop();
-  update_screen();
   
 
   // TESTING --------------
@@ -131,7 +137,7 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
-    comms_led.on();
+    //comms_led.on();
     if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
     {
       Serial.println("ERROR: Lost connection with receiver");
@@ -142,7 +148,7 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)
   {
-    comms_led.blink();
+    //comms_led.blink();
     if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
     {
       Serial.println("Receiver response received. Transitioning to operation state");
@@ -170,7 +176,7 @@ void loop() {
   }
 
 
-  update_screen();
+  displayManager.render(&screen);
 }
 
 bool sendCommand() {
@@ -364,19 +370,8 @@ void getVariableCommandCallback(cmd* commandPointer)
 }
 
 bool screenSetup(){
-  return screen.begin();
+  screen.begin();
+  displayManager.init(&screen);
+  return true;
 }
 
-void update_screen(){
-  screen.clearBuffer();
-
-  //LEFT sidebar for controller data
-  screen.drawBox(16,0,2,64);
-  screen.drawXBMP(2,2,12,7,screen_icon_controller);
-
-  //RIGHT sidebar for robot data
-  screen.drawBox(109,0,2,64);
-  screen.drawXBMP(113,2,12,7,screen_icon_robot);
-
-  screen.sendBuffer();
-}
