@@ -1,22 +1,28 @@
-#ifndef DIAGNOSTICS_H
-#define DIAGNOSTICS_H
+#ifndef WEAPON_H
+#define WEAPON_H
 #include "Arduino.h"
-#include <Servo.h> // ESP32-ESP32S2-AnalogWrite
+#include "driver/ledc.h"
+#include "esp_err.h"
 
 class Weapon {
 public:
     Weapon(int Pin);
+    void setup();
     void arm();
     void on();
     void off();
-    void setup();
 private:
+    const int _max_value = pow(2,13) - 1;
     bool _isSetup;
     int _pin;
     bool _value;
     bool _armed;
     int _on_time;
-    Servo _motor = Servo();
+    int _no_throttle = _max_value * 0.056;
+    int _full_throttle = _max_value * 0.094;
+    int _neutral_throttle = _max_value * 0.075;
+    ledc_channel_t _channel = LEDC_CHANNEL_4;
+    ledc_timer_t _timer = LEDC_TIMER_0;
 };
 
 #endif
