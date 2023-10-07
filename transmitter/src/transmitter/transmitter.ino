@@ -13,6 +13,8 @@
 #include "UiUiUi.h" //DOWNLOAD FROM HERE BECAUSE IT HAS FIXES NOT IN ARDUINO VERSION: https://github.com/burksbuilds/UiUiUi
 #include "UIStatusIndicator.h"
 #include "UISidebar.h"
+#include "UIDashboard.h"
+#include "UIMessageBanner.h"
 
 #define SOFTWARE_VERSION "v0.1"
 
@@ -55,8 +57,18 @@ long restartTime;//if non zero, board will restart if millis() > restart
 
 //globals for screen
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C screen(U8G2_R2);
-UISidebar controllerSidebar = UISidebar(screen_icon_controller);
-UIDisplay displayManager=UIDisplay(&controllerSidebar);
+UISidebar robotSidebar = UISidebar(screen_icon_robot);
+UIVerticalLine robotDivider = UIVerticalLine(&robotSidebar);
+
+UIMessageBanner messageBanner = UIMessageBanner();
+UIHorizontalLine messageBannerDivider = UIHorizontalLine(&messageBanner);
+UIDashboard dashboard = UIDashboard(&messageBannerDivider);
+UIRows centerArea = UIRows(&dashboard, &robotDivider);
+
+UIVerticalLine controllerDivider = UIVerticalLine(&centerArea);
+UISidebar controllerSidebar = UISidebar(screen_icon_controller, &controllerDivider);
+UIColumns mainDivider = UIColumns(&controllerSidebar);
+UIDisplay displayManager=UIDisplay(&mainDivider);
 
 
 void setup() {
@@ -175,7 +187,7 @@ void loop() {
     Serial.print("> ");
   }
 
-
+  dashboard.setValues(commandMessage);
   displayManager.render(&screen);
 }
 
@@ -372,6 +384,13 @@ void getVariableCommandCallback(cmd* commandPointer)
 bool screenSetup(){
   screen.begin();
   displayManager.init(&screen);
+  messageBanner.setMessage(UIStatusIcon::Info,"State Change","Entering Boot State");
+  controllerSidebar.updateWifiStrength(-55);
+  controllerSidebar.updateStatusIndicator(UIStatusIcon::Warning);
+  controllerSidebar.updateBatteryLevel(0x7FFF);
+  robotSidebar.updateWifiStrength(-65);
+  robotSidebar.updateStatusIndicator(UIStatusIcon::Fault);
+  robotSidebar.updateBatteryLevel(0xAFFF);
   return true;
 }
 

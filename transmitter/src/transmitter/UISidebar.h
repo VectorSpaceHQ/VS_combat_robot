@@ -17,14 +17,18 @@ class UISidebar : public UIRows
     UISidebar(const uint8_t* icon, UIWidget* next = nullptr);
 
     void updateWifiStrength(int16_t rssi);//probably a number between -50 and -80, where larger (-50) is a 'better' strength
-    void updateBatteryLevel(uint16_t stateOfCharge);//0-2^16-1 represents 0%-100%
+    void updateBatteryLevel(uint16_t stateOfCharge);//0 - 2^16-1 represents 0% - 100%
     void updateStatusIndicator(UIStatusIcon statusIcon);
 
   private:
 
     UIStatusIndicator statusIndicator;
+    UIEnvelope statusIndicatorPadding;
     UIProgressBar batteryIndicator;
-    UIEnvelope batteryEnvelope;
-    UIStatusIndicator wifiIndicator;
+    UIBorder batteryBorder;
+    UIEnvelope batteryPadding;
+    UIWifiIndicator wifiIndicator;
+    UIEnvelope wifiIndicatorPadding;
     UIBitmap sidebarIcon;
+    UIEnvelope sidebarIconPadding;
 };

@@ -3,19 +3,24 @@
 #include "Arduino.h"
 #include "UISidebar.h"
 
-UISidebar::UISidebar(const uint8_t* icon, UIWidget* next) : UIRows(&sidebarIcon, next),
+UISidebar::UISidebar(const uint8_t* icon, UIWidget* next) : UIRows(nullptr, next),
   statusIndicator(),
+  statusIndicatorPadding(UIExpansion::None, UIAlignment::Center, UISize(1,1), &statusIndicator),
   batteryIndicator(8,UISize::MAX_LEN,UIDirection::DownToTop),
-  batteryEnvelope(UIExpansion::None,UIAlignment::Center, UISize(2,2), &batteryIndicator, &statusIndicator),
-  wifiIndicator(&batteryIndicator),
-  sidebarIcon(12,7,icon,&wifiIndicator)
+  batteryBorder(1,&batteryIndicator),
+  batteryPadding(UIExpansion::None,UIAlignment::Center, UISize(1,1), &batteryBorder, &statusIndicatorPadding),
+  wifiIndicator(),
+  wifiIndicatorPadding(UIExpansion::None, UIAlignment::Center, UISize(1,1), &wifiIndicator, &batteryPadding),
+  sidebarIcon(12,7,icon),
+  sidebarIconPadding(UIExpansion::None, UIAlignment::Center, UISize(1,1), &sidebarIcon,&wifiIndicatorPadding)
 {
-
+  attachChildren(&sidebarIconPadding);
 }
 
 void UISidebar::updateWifiStrength(int16_t rssi)
 {
-
+  uint16_t strength = map(rssi,-80,-40,0,0xFFFF);
+  wifiIndicator.setWifiIcon(strength);
 }
 
 void UISidebar::updateBatteryLevel(uint16_t stateOfCharge)
