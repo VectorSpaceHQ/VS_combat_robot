@@ -2,34 +2,58 @@
 #include "button.h"
 
 
-Button::Button(int pin, bool judge){
+ReadyButton::ReadyButton(int pin){
     _pin = pin;
-    _judge = judge;
     pinMode(_pin, INPUT_PULLUP);
+    Serial.print("ReadyButton initialized on pin: ");
+    Serial.println(_pin);
 }
 
-void Button::loop(){
-    this->checkstate();
-    this->check_reset();
+void ReadyButton::loop(){
+    this->check_state();
 
-    // timeout button press after 10 sec
-    if (ready == true && (millis() - _last_press > 10000)){
+    // timeout button press after 30 sec
+    if (ready == true && (millis() - _last_press > 30000)){
         ready = false;
     }
-
-    // timeout reset after 3 sec
-    if (reset == true && (millis() - _last_press > 3000)){
-        reset = false;
-    }
 }
 
-void Button::checkstate(){
+void ReadyButton::check_state(){
+    if (digitalRead(_pin) == 0){
+        _state = true;
+        ready = true;
+        _last_press = millis();
+    }
+    else{
+        _state = false;
+     }
+}
+
+void ReadyButton::reset_state(){
+    _state = false;
+    ready = false;
+}
+
+
+
+ResetButton::ResetButton(int pin){
+    _pin = pin;
+    pinMode(_pin, INPUT_PULLUP);
+    Serial.print("ResetButton initialized on pin: ");
+    Serial.println(_pin);
+}
+
+void ResetButton::loop(){
+    this->check_state();
+    this->check_reset();
+}
+
+void ResetButton::check_state(){
     if (digitalRead(_pin) == 0){
         if (_state == false){
             _start_press_time = millis();
         }
         _state = true;
-        ready = true;
         _last_press = millis();
         _hold_duration = millis() - _start_press_time;
     }
@@ -37,27 +61,16 @@ void Button::checkstate(){
         _state = false;
         _start_press_time = 0;
         _hold_duration = 0;
-     }
+    }
 }
 
-void Button::reset_state(){
-    _state = false;
-    ready = false;
-}
-
-void Button::check_reset(){
+void ResetButton::check_reset(){
     int hold_time = 3000; // millis
-    // Serial.print(_judge);
-    // Serial.print(", ");
-    // Serial.print(_state);
-    // Serial.print(", ");
-    // Serial.println(_hold_duration);
-    // delay(100);
-    if (_judge && _state && _hold_duration > hold_time){
-        ready = false;
+    if (_state && _hold_duration > hold_time){
         reset = true;
-        // send reset all message
         Serial.println("RESET!!");
-        delay(1000);
+    }
+    else{
+        reset = false;
     }
 }

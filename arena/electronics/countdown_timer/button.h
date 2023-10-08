@@ -3,15 +3,30 @@
 #include "Arduino.h"
 
 
-class Button {
+class ReadyButton {
 public:
-    Button(int pin, bool judge=false);
-    void checkstate();
+    ReadyButton(int pin);
+    void check_state();
     void loop();
     void reset_state();
     void check_reset();
 
     bool ready = false;
+    bool _state = false;
+private:
+    int _pin;
+
+    long _last_press;
+};
+
+class ResetButton {
+public:
+    ResetButton(int pin);
+    void loop();
+    void check_state();
+    void reset_state();
+    void check_reset();
+
     bool reset = false;
 private:
     int _pin;
@@ -19,7 +34,6 @@ private:
     long _last_press;
     int _hold_duration;
     long _start_press_time;
-    bool _judge;
 };
 
 

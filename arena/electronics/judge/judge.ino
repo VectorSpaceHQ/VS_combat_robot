@@ -2,8 +2,8 @@
 #include <WiFi.h>
 #include "button.h"
 
-Button judge_ready_button(2);
-Button judge_reset_button(4, true);
+ReadyButton judge_ready_button(2);
+ResetButton judge_reset_button(4);
 bool arena_alive;
 
 // Arena's MAC Adress is: D4:F9:8D:03:79:1C
