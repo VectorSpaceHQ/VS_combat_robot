@@ -2,27 +2,10 @@
 #include "drive_motor.h"
 #include "limits.h"
 
+
 DriveMotor::DriveMotor(){
   _isSetup = false;
 }
-/*
-bool DriveMotor::setup(int forwardPin, int backwardPin, int forwardChannel, int backwardChannel, int pwmFrequency, int pwmResolution)
-{
-  _isSetup = true;
-
-  pinMode(forwardPin, OUTPUT);
-  pinMode(backwardPin, OUTPUT);
-  _isSetup &= ledcSetup(forwardChannel,pwmFrequency,pwmResolution) > 0;
-  _isSetup &= ledcSetup(backwardChannel,pwmFrequency,pwmResolution) > 0;
-  ledcAttachPin(forwardPin,forwardChannel);
-  ledcAttachPin(backwardPin,backwardChannel);
-
-  _forwardChannel = forwardChannel;
-  _backwardChannel = backwardChannel;
-  _maxCommand = (1<<pwmResolution) -1;
-
-  return _isSetup;
-}*/
 
 
 bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
@@ -31,7 +14,6 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
     _isSetup = true;
     _forwardChannel = channelA;
     _backwardChannel = channelB;
-
 
     pinMode(PinA, OUTPUT);
     pinMode(PinB, OUTPUT);
@@ -74,31 +56,6 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
     return _isSetup;
 }
 
-/*
-void DriveMotor::loop(int speed, bool enable)
-{
-  if(!_isSetup) return;
-
-
-  if(enable)
-  {
-    if(speed > 0)
-    {
-      ledcWrite(_forwardChannel,map(speed,0,0x7fff,0,_maxCommand));
-      ledcWrite(_backwardChannel,0);
-    } else if(speed < 0)
-    {
-      ledcWrite(_forwardChannel,0);
-      ledcWrite(_backwardChannel,map(speed,0,-1*0x7fff,0,_maxCommand));
-    } else { // brakes
-      ledcWrite(_forwardChannel,_maxCommand);
-      ledcWrite(_backwardChannel,_maxCommand);
-    }
-  } else {
-    ledcWrite(_forwardChannel,0);
-    ledcWrite(_backwardChannel,0);
-  }
-}*/
 
 void DriveMotor::loop(int speed, bool enable){
     int cmd;
@@ -106,7 +63,6 @@ void DriveMotor::loop(int speed, bool enable){
 
     if(enable)
     {
-        
         if(speed > 0)
         {
             cmd = map(speed,0,0x7fff,0,_maxCommand);
@@ -114,8 +70,6 @@ void DriveMotor::loop(int speed, bool enable){
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, 0) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
-            
-            
 
         } else if(speed < 0)
         {
@@ -124,13 +78,6 @@ void DriveMotor::loop(int speed, bool enable){
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, cmd) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
-            /*Serial.print("forward, ");
-            Serial.print(speed);
-            Serial.print(", ");
-            Serial.print(_maxCommand);
-            Serial.print(", ");
-            Serial.println(cmd);*/
-            Serial.println(speed);
         } else { // brakes
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, _maxCommand) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );

@@ -9,9 +9,10 @@ Weapon::Weapon(int Pin){
     _armed = false;
 }
 
-void Weapon::setup(){
+bool Weapon::setup(){
+    _isSetup = true;
     pinMode(_pin, OUTPUT);
-    delay(3000);
+    // delay(3000); // IS this necessary??
 
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
@@ -33,22 +34,25 @@ void Weapon::setup(){
         .hpoint         = 0
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel1));
+
+    return _isSetup;
 }
 
 
 void Weapon::arm() // https://www.helifreak.com/showthread.php?t=412147
 {
-    Serial.println("arming");
     ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, _neutral_throttle) );
     ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
-    Serial.println("step 1 done. Low tone beep.");
     delay(1000);
 
     ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, _no_throttle) );
     ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
-    Serial.println("step 3 done. High tone beep.");
     delay(1000);
     _armed = true;
+}
+
+void Weapon::disarm(){
+    // Don't believe this is possible for BLHeli ESCs
 }
 
 void Weapon::on(){
@@ -59,4 +63,14 @@ void Weapon::on(){
 void Weapon::off(){
     ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _channel, _no_throttle) );
     ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _channel) );
+}
+
+void Weapon::loop(int speed, bool enable){
+    if(!_isSetup) return;
+    if(speed > 20 && enable){
+        weapon.on();
+    }
+    else{
+        weapon.off();
+    }
 }
