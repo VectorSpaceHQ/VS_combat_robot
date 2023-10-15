@@ -23,9 +23,6 @@ ReceiverState currentState = RECEIVER_STATE_BOOT;
 ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
-
-
-
 //globals for communication
 uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x77, 0xDC};
 esp_now_peer_info_t transmitterCommsInfo;
@@ -64,11 +61,7 @@ void setup() {
                               LEDC_TIMER_2, LEDC_CHANNEL_2, LEDC_CHANNEL_3);
   startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
                                LEDC_TIMER_2, LEDC_CHANNEL_0, LEDC_CHANNEL_1);
-
-  buzzer.ready();
-  weapon.setup();
-  weapon.arm();
-
+  startupOK &= weapon.setup();
   startupOK &= espNowSetup();
 
   if(!startupOK)
@@ -79,7 +72,7 @@ void setup() {
   } else {
     currentState = RECEIVER_STATE_CONNECTING;
     Serial.println("Startup Successful, transitioning to connection state");
-    //sound_ready();
+    buzzer.ready();
   }
 
 }
@@ -111,7 +104,7 @@ bool espNowSetup()
   // Add peer
   if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
     Serial.println("ERROR: Failed to add transmitter as peer");
-    //buzzer.error();
+    buzzer.error();
     return false;
   }
   char messageBuffer[255];
@@ -129,39 +122,16 @@ bool espNowSetup()
   return true;
 }
 
-void sound_on(){
-  // Do not use tone as it interferes with ledc and the motor control
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 247);
-  delay(250);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 494);
-  delay(500);
-  ledcWriteTone(PWM_CHANNEL_BUZZER, 0);
-  delay(20);
-}
-
-
-
-
-
 
 void loop(){
-
   buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
-
-
-  if(commandMessage.weapon_speed > 20 && currentState == RECEIVER_STATE_OPERATION){
-    weapon.on();
-  }
-  else{
-    weapon.off();
-  }
+  weapon.loop(commandMessage.weapon_speed, currentState == RECEIVER_STATE_OPERATION);
 
   if (commandMessage.horn_frequency > 0){
     buzzer.honk(commandMessage.horn_frequency);
   }
-
 
   if(currentState == RECEIVER_STATE_CONNECTING)
   {
@@ -170,6 +140,7 @@ void loop(){
       currentState = RECEIVER_STATE_OPERATION;
       Serial.println("Command Message Received, transitioning to normal operation");
       buzzer.comms();
+      weapon.arm();
     }
   } else if (currentState == RECEIVER_STATE_OPERATION)
   {
@@ -181,11 +152,11 @@ void loop(){
       currentState = RECEIVER_STATE_CONNECTING;
       Serial.println("ERROR: Command message timeout, transitioning to connecting state");
       buzzer.error();
+      weapon.disarm();
     }
   }
 
-  delay(10);
-
+  delay(10); // not sure if this is necessary
 }
 
 

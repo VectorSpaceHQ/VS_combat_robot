@@ -7,10 +7,12 @@
 class Weapon {
 public:
     Weapon(int Pin);
-    void setup();
+    bool setup();
     void arm();
+    void disarm();
     void on();
     void off();
+    void loop(int speed, bool enable=true);
 private:
     const int _max_value = pow(2,13) - 1;
     bool _isSetup;
