@@ -17,7 +17,7 @@ void setup()
 
 void loop()
 {
-     if (digitalRead(PIN_WEAPON_TOGGLE_SWITCH) == 0){
+     if (digitalRead(PIN_WEAPON_TOGGLE_SWITCH) == 1){
         Serial.println("Weapon ON");
      }
      if (digitalRead(PIN_RIGHT_THUMB_SWITCH) == 0){

@@ -68,9 +68,9 @@ void Weapon::off(){
 void Weapon::loop(int speed, bool enable){
     if(!_isSetup) return;
     if(speed > 20 && enable){
-        weapon.on();
+        this->on();
     }
     else{
-        weapon.off();
+        this->off();
     }
 }
