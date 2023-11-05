@@ -10,7 +10,7 @@
 
 
 #define COUNTDOWN_DURATION 3
-#define RUNNING_DURATION 20
+#define RUNNING_DURATION 120
 #define CLOCK_LEFT_MARGIN 4
 
 // #define BLACK    0x0000
