@@ -24,7 +24,7 @@ ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
 //globals for communication
-uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x77, 0xDC};
+uint8_t transmitterAddress[] = {0x34, 0x85, 0x18, 0x07, 0x53, 0x5C};
 //uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8A, 0x03, 0x7A, 0x40};
 esp_now_peer_info_t transmitterCommsInfo;
 CommandMessage commandMessage;              //incoming
