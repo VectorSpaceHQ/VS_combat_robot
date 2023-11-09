@@ -65,6 +65,8 @@ void setup() {
   startupOK &= weapon.setup();
   startupOK &= espNowSetup();
 
+  weapon.arm();
+
   if(!startupOK)
   {
     currentState = RECEIVER_STATE_CRITICAL_FAULT;
@@ -141,7 +143,7 @@ void loop(){
       currentState = RECEIVER_STATE_OPERATION;
       Serial.println("Command Message Received, transitioning to normal operation");
       buzzer.comms();
-      weapon.arm();
+      /* weapon.arm(); */ // need to implement non-blocking before arming here
     }
   } else if (currentState == RECEIVER_STATE_OPERATION)
   {
