@@ -6,8 +6,9 @@
 #include <WiFi.h>
 #include "common.h"
 
-#define START_BUTTON_PIN D0
-#define CANCEL_BUTTON_PIN D2
+#define START_BUTTON_PIN D3
+#define CANCEL_BUTTON_PIN D9
+#define LED_PIN D7
 
 
 sender_message message;//message to send to clock
@@ -49,6 +50,8 @@ void setup() {
   sendMessageCommand.addPositionalArgument("message");
 
   Serial.print("> ");
+
+  pinMode(LED_PIN,OUTPUT);
 }
 
 void loop() {
@@ -69,6 +72,7 @@ void loop() {
   start_button.tick();
   cancel_button.tick();
 
+  digitalWrite(LED_PIN,HIGH);
 }
 
 void send_message(message_type type)
