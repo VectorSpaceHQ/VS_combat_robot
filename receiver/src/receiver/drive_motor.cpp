@@ -61,6 +61,13 @@ void DriveMotor::loop(int speed, bool enable){
     int cmd;
     if(!_isSetup) return;
 
+    // softstart for high current motors
+    // upgrade motor driver and remove this
+    if(abs(speed - _lastSpeed) > 1000){
+       speed = _lastSpeed + (speed - _lastSpeed) / 20;
+       _lastSpeed = speed;
+    }
+
     if(enable)
     {
         if(speed > 0)
@@ -73,6 +80,10 @@ void DriveMotor::loop(int speed, bool enable){
 
         } else if(speed < 0)
         {
+            // last minute bug fix. remove this
+            if (speed < -30000){
+              speed = -32767;
+            } //--------------------------------
             cmd = map(speed,0,-1*0x7fff,0,_maxCommand);
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, 0) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );

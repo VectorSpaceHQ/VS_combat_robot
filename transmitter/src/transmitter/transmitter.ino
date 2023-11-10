@@ -393,4 +393,3 @@ bool screenSetup(){
   robotSidebar.updateBatteryLevel(0xAFFF);
   return true;
 }
-

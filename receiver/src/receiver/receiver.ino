@@ -25,7 +25,7 @@ ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
 //globals for communication
 uint8_t transmitterAddress[] = {0x34, 0x85, 0x18, 0x07, 0x53, 0x5C};
-//uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8A, 0x03, 0x7A, 0x40};
+//uint8_t transmitterAddress[] = {0xD4, 0xF9, 0x8D, 0x03, 0x77, 0xDC};
 esp_now_peer_info_t transmitterCommsInfo;
 CommandMessage commandMessage;              //incoming
 ResponseMessage responseMessage;            //outgoing
@@ -64,7 +64,8 @@ void setup() {
                                LEDC_TIMER_2, LEDC_CHANNEL_0, LEDC_CHANNEL_1);
   startupOK &= weapon.setup();
   startupOK &= espNowSetup();
-
+  
+  delay(200);
   weapon.arm();
 
   if(!startupOK)
