@@ -16,7 +16,7 @@
 #include "UIDashboard.h"
 #include "UIMessageBanner.h"
 
-#define SOFTWARE_VERSION "v0.1"
+#define SOFTWARE_VERSION "v1"
 
 #define CONNECTION_TIMEOUT_MS 1000
 
