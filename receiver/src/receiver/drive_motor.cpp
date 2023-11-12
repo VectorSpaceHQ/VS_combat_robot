@@ -61,13 +61,6 @@ void DriveMotor::loop(int speed, bool enable){
     int cmd;
     if(!_isSetup) return;
 
-    // softstart for high current motors
-    // upgrade motor driver and remove this
-    if(abs(speed - _lastSpeed) > 1000){
-       speed = _lastSpeed + (speed - _lastSpeed) / 20;
-       _lastSpeed = speed;
-    }
-
     if(enable)
     {
         if(speed > 0)

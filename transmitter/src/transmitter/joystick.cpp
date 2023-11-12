@@ -57,18 +57,6 @@ void Joystick::updateValue()
     if(_value > 1000){
       _value = -32767;
     }
-    /*
-    Serial.print("backwards, ");
-    Serial.print(_ticksPerVolt);
-    Serial.print(", ");
-    Serial.print(_volts);
-    Serial.print(", ");
-    Serial.print(_lowerNeutralVoltage);
-    Serial.print(", ");
-    Serial.println(_value);
-    if(_value > 0){
-      delay(2000);
-    }*/
   }
   else if (_volts < _lowerNeutralVoltage)
   {
