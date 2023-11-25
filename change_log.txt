@@ -1,3 +1,17 @@
+== v4
+* Receiver
+** Replaced Buzzer with LED for diagnostics
+** Replaced AMS1117 with UA78M33CDCYRG3 because it rolls off the tongue and handles higher Vin, including 4s LiPo.
+** Added more spacing between battery connection pads
+** Clearly labeled left and right motors
+* Transmitter
+* Chassis
+** Thickened walls
+** Added belt tension
+** Added walls around weapon motor to protect wires
+** Extended weapon supports to allow weapon to spin when upside down
+
+
 == v3 PCBs, commit d353bc9  ==
 * Complete redesign from scratch.
 * Switching from Arduino to ESP32-C3 MCUs
