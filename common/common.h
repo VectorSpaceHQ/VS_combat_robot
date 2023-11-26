@@ -8,7 +8,7 @@ enum TransmitterState : uint8_t
 	TRANSMITTER_STATE_BOOT,				//initial state, sets up logs/serial then transitions to startup
 	TRANSMITTER_STATE_STARTUP,			//initializes all of the devices and configurations. transitions to connecting OR configuration when ready
   TRANSMITTER_STATE_CONNECTING,  //attempting to get in touch with a receiver transitions to OPERATION once a packet makes it back
-	TRANSMITTER_STATE_OPERATION,			//indefinite state. commands are transmitted cyclically. falls back to 
+	TRANSMITTER_STATE_OPERATION,			//indefinite state. commands are transmitted cyclically. falls back to
 	TRANSMITTER_STATE_CRITICAL_FAULT,		//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
 	TRANSMITTER_STATE_CONFIGURATION		//a non-transmitting state meant for safe reconfiguration of settings. requires reboot to exit
 };
@@ -36,11 +36,11 @@ enum TransmitterWarning : uint16_t
 
 enum ReceiverState : uint8_t
 {
-	RECEIVER_STATE_BOOT,				//initial state, sets up logs/serial then transitions to startup
-	RECEIVER_STATE_STARTUP,			//initializes all of the devices and configurations. transitions to connecting when ready
-	RECEIVER_STATE_CONNECTING,			//tries to connect to (waits to receive) commands from the transmitter. transitions to operation when a command is received
-	RECEIVER_STATE_OPERATION,			//indefinite state. falls back to connecting state if no commands received in a while
-	RECEIVER_STATE_CRITICAL_FAULT		//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
+	RECEIVER_STATE_BOOT,		//initial state, sets up logs/serial then transitions to startup
+	RECEIVER_STATE_STARTUP,		//initializes all of the devices and configurations. transitions to connecting when ready
+	RECEIVER_STATE_CONNECTING,	//tries to connect to (waits to receive) commands from the transmitter. transitions to operation when a command is received
+	RECEIVER_STATE_OPERATION,	//indefinite state. falls back to connecting state if no commands received in a while
+	RECEIVER_STATE_CRITICAL_FAULT	//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
 };
 
 enum ReceiverFault : uint16_t

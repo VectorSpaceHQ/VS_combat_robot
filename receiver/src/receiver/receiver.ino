@@ -1,21 +1,32 @@
-#include <WiFi.h>
-#include <esp_now.h>
+/*
+ * Vector Space Combat Robot Receiver
+ * XIAO ESP32-C3
+ * 11/2023
+*/
+
 #include "hardware.h"
 #include "common.h"
 #include "drive_motor.h"
-#include "async_buzzer.h"
-#include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
 #include "weapon.h"
+#include "diagnostics.h"
+#include <WiFi.h>
+#include <esp_now.h>
+#include <PreferencesCLI.h> // by Andrew Burks
+#include <Servo.h> // ESP32 ESP32S2 AnalogWrite by David Lloyd
 
-
-#define SOFTWARE_VERSION "v0.1"
+#define SOFTWARE_VERSION "v1.1"
 
 #define CONNECTION_TIMEOUT_MS 1000
 
+//globals from libraries
+Preferences preferences;
+SimpleCLI cli;
+PreferencesCLI prefCli(preferences);
+
 //globals for libraries
-AsyncBuzzer buzzer;
 DriveMotor leftMotor;
 DriveMotor rightMotor;
+Diagnostics diagnostics;
 Weapon weapon(D5);
 
 //globals for receiver states
@@ -47,7 +58,6 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 
 
 void setup() {
-
   currentState = RECEIVER_STATE_STARTUP;
   bool startupOK = true;
 
@@ -56,15 +66,14 @@ void setup() {
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
 
-
-  startupOK &= buzzer.setup(PIN_BUZZER, PWM_CHANNEL_BUZZER);
+  startupOK &= diagnostics.setup();
   startupOK &= leftMotor.init(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD,
                               LEDC_TIMER_2, LEDC_CHANNEL_2, LEDC_CHANNEL_3);
   startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
                                LEDC_TIMER_2, LEDC_CHANNEL_0, LEDC_CHANNEL_1);
   startupOK &= weapon.setup();
   startupOK &= espNowSetup();
-  
+
   delay(200);
   weapon.arm();
 
@@ -72,13 +81,10 @@ void setup() {
   {
     currentState = RECEIVER_STATE_CRITICAL_FAULT;
     Serial.println("ERROR: Critical fault during startup is preventing transition to normal operation");
-    buzzer.error();
   } else {
     currentState = RECEIVER_STATE_CONNECTING;
     Serial.println("Startup Successful, transitioning to connection state");
-    buzzer.ready();
   }
-
 }
 
 bool espNowSetup()
@@ -94,21 +100,30 @@ bool espNowSetup()
     return false;
   }
 
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
   esp_now_register_send_cb(OnDataSent);
-      // Register for a callback function that will be called when data is received
   esp_now_register_recv_cb(OnDataRecv);
 
   // Register peer
-  memcpy(transmitterCommsInfo.peer_addr, transmitterAddress, 6);
+  preferences.begin("Comms");
+  if(preferences.isKey("Address"))
+  {
+      size_t addressLength = preferences.getBytes("Address",transmitterCommsInfo.peer_addr,6);
+      preferences.end();
+      if(addressLength != 6)
+      {
+          Serial.println("ERROR: transmitter address stored in Comms/Address is not 6 bytes long");
+          return false;
+      }
+  } else {
+      Serial.println("WARNING: No transmitter address stored in Comms/Address");
+      Serial.println("Store Comms address by typing: 'setp Comms Address Bytes D4F98D03710C'");
+  }
   transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
 
   // Add peer
   if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
     Serial.println("ERROR: Failed to add transmitter as peer");
-    buzzer.error();
     return false;
   }
   char messageBuffer[255];
@@ -128,14 +143,10 @@ bool espNowSetup()
 
 
 void loop(){
-  buzzer.loop();
   leftMotor.loop(commandMessage.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(commandMessage.right_speed, currentState == RECEIVER_STATE_OPERATION);
   weapon.loop(commandMessage.weapon_speed, currentState == RECEIVER_STATE_OPERATION);
-
-  if (commandMessage.horn_frequency > 0){
-    buzzer.honk(commandMessage.horn_frequency);
-  }
+  diagnostics.loop(currentState);
 
   if(currentState == RECEIVER_STATE_CONNECTING)
   {
@@ -143,7 +154,6 @@ void loop(){
     {
       currentState = RECEIVER_STATE_OPERATION;
       Serial.println("Command Message Received, transitioning to normal operation");
-      buzzer.comms();
       /* weapon.arm(); */ // need to implement non-blocking before arming here
     }
   } else if (currentState == RECEIVER_STATE_OPERATION)
@@ -155,7 +165,6 @@ void loop(){
     {
       currentState = RECEIVER_STATE_CONNECTING;
       Serial.println("ERROR: Command message timeout, transitioning to connecting state");
-      buzzer.error();
       weapon.disarm();
     }
   }
