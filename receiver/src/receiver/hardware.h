@@ -20,5 +20,8 @@
 #define PWM_CHANNEL_RIGHT_BACKWARD 4
 #define PWM_CHANNEL_BUZZER 5
 
+#define PIN_PWR_LED D6 // D4
+#define PIN_COMMS_LED D6 
+
 
 #endif

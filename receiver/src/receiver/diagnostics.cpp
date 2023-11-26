@@ -1,6 +1,11 @@
 #include "Arduino.h"
 #include "diagnostics.h"
+#include "common.h"
+#include "hardware.h"
 
+LED pwr(PIN_PWR_LED);
+LED comms(PIN_COMMS_LED);
+  
 Diagnostics::Diagnostics()
 {
   _isSetup = false;
@@ -9,47 +14,59 @@ Diagnostics::Diagnostics()
 
 bool Diagnostics::setup()
 {
-  pinMode(_pwr_pin, OUTPUT);
-  pinMode(_comms_pin, OUTPUT);
-
-  digitalWrite(_pwr_pin, HIGH);
+  pwr.on();
 
   _isSetup = true;
   return _isSetup;
 }
 
-void Diagnostics::loop(currentState)
+void Diagnostics::loop(ReceiverState currentState)
 {
     // blink comms pin
     if (currentState == RECEIVER_STATE_CONNECTING){
-        if(millis() - _comms_on_time > 200){
-            _comms_on_time = millis();
-            if(_comms_on){
-                digitalWrite(_comms_pin, LOW);
-                _comms_on = false;
-            }
-            else{
-                digitalWrite(_comms_pin, HIGH);
-                _comms_on = true;
-            }
-        }
+        comms.blink(200);
     }
     else if(currentState == RECEIVER_STATE_OPERATION){
-        digitalWrite(_pwr_pin, HIGH);
-        digitalWrite(_comms_pin, HIGH);
+        pwr.on();
+        comms.on();
     }
     // blink pwr pin on fault
     else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){
-        if(millis() - _pwr_on_time > 100){
-            _pwr_on_time = millis();
-            if(_pwr_on){
-                digitalWrite(_pwr_pin, LOW);
-                _pwr_on = false;
-            }
-            else{
-                digitalWrite(_pwr_pin, HIGH);
-                _pwr_on = true;
-            }
-        }
+        pwr.blink(100);
+    }
+}
+
+LED::LED(int Pin){
+    _isSetup = false;
+    _pin = Pin;
+    _value = 0;
+    pinMode(_pin, OUTPUT);
+    _isSetup = true;
+}
+
+void LED::on(){
+    digitalWrite(_pin, 1);
+    _value = 1;
+}
+
+void LED::off(){
+    digitalWrite(_pin, 0);
+    _value = 0;
+}
+
+void LED::toggle(){
+    if (_value == 1){
+        (*this).off();
+    }
+    else{
+        (*this).on();
+    }
+    _last_value_change = millis();
+}
+
+void LED::blink(int blink_rate){
+    if(millis() - _last_value_change > blink_rate){
+        (*this).toggle();
+        _last_value_change = millis();
     }
 }

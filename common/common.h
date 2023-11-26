@@ -1,3 +1,4 @@
+#pragma once
 #ifndef COMMON_H
 #define COMMON_H
 
@@ -88,14 +89,14 @@ struct CommandMessage
 
 struct ResponseMessage
 {
-	uint32_t command_id;		//id of the CommandMessage that prompted this response
-  uint32_t uptime;        //current 'millis()' value on receiver
-	ReceiverState state;		//current state of the receiver
-	ReceiverFault faults;		//currently active faults of the receiver
-	ReceiverWarning warnings;	//currently active warnings of the receiver
-	uint16_t board_voltage;		//current voltage (millivolts) of the receiver board
-	uint8_t battery_charge;		//current state of charge (0-100, as %) of theprimary receiver battery
-	int16_t wifi_strength;		//RSSI of the indicated CommandMessage
+    uint32_t command_id;		//id of the CommandMessage that prompted this response
+    uint32_t uptime;        //current 'millis()' value on receiver
+    ReceiverState state;		//current state of the receiver
+    ReceiverFault faults;		//currently active faults of the receiver
+    ReceiverWarning warnings;	//currently active warnings of the receiver
+    uint16_t board_voltage;		//current voltage (millivolts) of the receiver board
+    uint8_t battery_charge;		//current state of charge (0-100, as %) of theprimary receiver battery
+    int16_t wifi_strength;		//RSSI of the indicated CommandMessage
 };
 
 
