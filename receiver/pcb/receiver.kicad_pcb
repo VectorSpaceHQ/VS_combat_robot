@@ -6,10 +6,10 @@
 
   (paper "A4")
   (layers
-    (0 "F.Cu" signal)
-    (1 "In1.Cu" power "PWR")
-    (2 "In2.Cu" power "GND")
-    (31 "B.Cu" signal)
+    (0 "F.Cu" signal "F.Cu-1L")
+    (1 "In1.Cu" power "PWR-2L")
+    (2 "In2.Cu" power "GND-3L")
+    (31 "B.Cu" signal "B.Cu-4L")
     (32 "B.Adhes" user "B.Adhesive")
     (33 "F.Adhes" user "F.Adhesive")
     (34 "B.Paste" user)
