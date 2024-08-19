@@ -1,9 +1,15 @@
+== v5
+** Use electrolytic capacitor for 470uF
+** 3.3v output from UA78M33CDCYRG3 was going to 5V pin of ESP, fixed to 3.3V pin.
+
+
 == v4
 * Receiver
 ** Replaced Buzzer with LED for diagnostics
 ** Replaced AMS1117 with UA78M33CDCYRG3 because it rolls off the tongue and handles higher Vin, including 4s LiPo.
 ** Added more spacing between battery connection pads
 ** Clearly labeled left and right motors
+** Switched from DRV8870 to DRV8851
 * Transmitter
 * Chassis
 ** Thickened walls
