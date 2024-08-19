@@ -1,4 +1,3 @@
-#pragma once
 #ifndef DIAGNOSTICS_H
 #define DIAGNOSTICS_H
 
