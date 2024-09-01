@@ -351,12 +351,7 @@
       (net 25 "unconnected-(U3-Batt+-PadB+)") (pinfunction "Batt+") (pintype "power_in+no_connect") (tstamp 0daf2eda-8f67-4ff6-877b-59c30dfeaaad))
     (pad "B-" thru_hole oval (at -4.929 -4 90) (size 2.5 1.5) (drill oval 2 1) (layers "*.Cu" "*.Mask")
       (net 26 "unconnected-(U3-Batt--PadB-)") (pinfunction "Batt-") (pintype "power_in+no_connect") (tstamp 114b7155-300f-46d6-83f9-49e17b14d3fb))
-    (model "${KIPRJMOD}/footprints/xiao_esp32-c3/Seeed Studio XIAO-ESP32-C3.step"
-      (offset (xyz 5.5 0 0))
-      (scale (xyz 1 1 1))
-      (rotate (xyz -90 0 -90))
-    )
-    (model "/home/adam/Programming/xiao_c3/footprint/my_esp32c3_library/Seeed Studio XIAO-ESP32-C3.step"
+    (model "${KIPRJMOD}/footprints_and_symbols/XIAO_ESP32C3/Seeed Studio XIAO-ESP32-C3.step"
       (offset (xyz 5.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz -90 0 -90))
