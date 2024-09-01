@@ -6,7 +6,9 @@ CommandMessage commandMessage;              //incoming
 ResponseMessage responseMessage;            //outgoing
 
 
+void SetState(){
 
+}
 
 
 CommandMessage GetCommandMessage(){
@@ -34,8 +36,11 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 
 
 
-bool espNowSetup(Preferences prefs)
+bool espNowSetup()
 {
+    Preferences prefs;
+
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
   Serial.print("Receiver WiFi Initialized at MAC "); Serial.println(WiFi.macAddress());

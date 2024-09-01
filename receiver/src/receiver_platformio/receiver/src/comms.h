@@ -10,9 +10,10 @@
 #include <PreferencesCLI.h>
 
 
-bool espNowSetup(Preferences);
+bool espNowSetup();
 bool sendResponse(ReceiverState, ReceiverFault, ReceiverWarning);
 CommandMessage GetCommandMessage();
 ResponseMessage GetResponseMessage();
+void SetState();
 
 #endif
