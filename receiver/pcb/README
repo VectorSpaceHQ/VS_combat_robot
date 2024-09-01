@@ -1,0 +1,6 @@
+ESP32C3 pin limitations:
+https://wiki.seeedstudio.com/exp32c3_d9_d6_d8/
+
+Use D9 only as input
+Use D6 only as output but it will sometimes be HIGH, so don't use it for any motors!
+
