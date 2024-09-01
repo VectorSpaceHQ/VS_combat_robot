@@ -11,6 +11,7 @@
 #include "comms.h"
 #include "diagnostics.h"
 #include "cli.h"
+#include "auto_pairing.h"
 #include <WiFi.h>
 #include <esp_now.h>
 #include <PreferencesCLI.h> // by Andrew Burks
@@ -20,10 +21,6 @@
 #define SOFTWARE_VERSION "v1.2"
 #define CONNECTION_TIMEOUT_MS 1000
 
-//globals from libraries
-/* Preferences preferences;
-SimpleCLI cli;
-PreferencesCLI prefCli(preferences); */
 
 //globals for libraries
 DriveMotor leftMotor;
@@ -36,12 +33,6 @@ ReceiverState currentState = RECEIVER_STATE_BOOT;
 ReceiverFault currentFaults = RECEIVER_FAULT_NONE;
 ReceiverWarning currentWarnings = RECEIVER_WARNING_NONE;
 
-//globals for CLI
-/* char cliResponseBuffer[256];
-Command helpCommand;//command used to display CLI help
-Command restartCommand;//command used to restart the transmitter or receiver
-Command getVarCommand;//used to return values of certain internal variables */
-
 //globals for communication
 /* esp_now_peer_info_t transmitterCommsInfo; */
 CommandMessage cmd_msg;              //incoming
@@ -49,26 +40,26 @@ ResponseMessage rsp_msg;            //outgoing
 
 
 void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
-if(currentState == RECEIVER_STATE_CONNECTING)
-  {
-    if(cmd_msg.id != rsp_msg.command_id)
+  if(currentState == RECEIVER_STATE_CONNECTING)
     {
-      currentState = RECEIVER_STATE_OPERATION;
-      Serial.println("Command Message Received, transitioning to normal operation");
-      /* weapon.arm(); */ // need to implement non-blocking before arming here
+      if(cmd_msg.id != rsp_msg.command_id)
+      {
+        currentState = RECEIVER_STATE_OPERATION;
+        Serial.println("Command Message Received, transitioning to normal operation");
+        /* weapon.arm(); */ // need to implement non-blocking before arming here
+      }
+    } else if (currentState == RECEIVER_STATE_OPERATION)
+    {
+      if(cmd_msg.id != rsp_msg.command_id)
+      {
+        sendResponse(currentState, currentFaults, currentWarnings);
+      } else if((rsp_msg.uptime + CONNECTION_TIMEOUT_MS) < millis())
+      {
+        currentState = RECEIVER_STATE_CONNECTING;
+        Serial.println("ERROR: Command message timeout, transitioning to connecting state");
+        weapon.disarm();
+      }
     }
-  } else if (currentState == RECEIVER_STATE_OPERATION)
-  {
-    if(cmd_msg.id != rsp_msg.command_id)
-    {
-      sendResponse(currentState, currentFaults, currentWarnings);
-    } else if((rsp_msg.uptime + CONNECTION_TIMEOUT_MS) < millis())
-    {
-      currentState = RECEIVER_STATE_CONNECTING;
-      Serial.println("ERROR: Command message timeout, transitioning to connecting state");
-      weapon.disarm();
-    }
-  }
 }
 
 
@@ -117,6 +108,8 @@ void loop(){
 
   SetState(cmd_msg, rsp_msg);
   ParseCLI(); // doesn't need to happen very often
+
+  
 
   delay(10); // not sure if this is necessary
 }

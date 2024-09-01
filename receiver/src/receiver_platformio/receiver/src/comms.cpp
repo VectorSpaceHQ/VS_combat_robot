@@ -1,4 +1,5 @@
 #include "comms.h"
+#include "auto_pairing.h"
 
 //globals for communication
 esp_now_peer_info_t transmitterCommsInfo;
@@ -9,7 +10,6 @@ ResponseMessage responseMessage;            //outgoing
 void SetState(){
 
 }
-
 
 CommandMessage GetCommandMessage(){
     return commandMessage;
@@ -69,6 +69,9 @@ bool espNowSetup()
   } else {
       Serial.println("WARNING: No transmitter address stored in Comms/Address");
       Serial.println("Store Comms address by typing: 'setp Comms Address Bytes FFFFFFFFFFFF'");
+
+      // Attempt auto pairing state
+      PairSetup();
   }
   transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
@@ -94,9 +97,6 @@ bool espNowSetup()
 }
 
 
-
-
-
 bool sendResponse(ReceiverState currentState, ReceiverFault currentFaults, ReceiverWarning currentWarnings)
 {
   responseMessage.command_id = commandMessage.id;
@@ -104,9 +104,6 @@ bool sendResponse(ReceiverState currentState, ReceiverFault currentFaults, Recei
   responseMessage.state = currentState;
   responseMessage.faults = currentFaults;
   responseMessage.warnings = currentWarnings;
-  //responseMessage.board_voltage
-  //responseMessage.battery_charge
-  //responseMessage.wigi_strength
 
   esp_err_t result = esp_now_send(transmitterCommsInfo.peer_addr, (uint8_t *) &responseMessage, sizeof(responseMessage));
   if(result != ESP_OK)
