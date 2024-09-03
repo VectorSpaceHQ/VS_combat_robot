@@ -62,12 +62,21 @@ void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
     }
 }
 
+void ParseState(){
+  if (currentState == RECEIVER_STATE_CONNECTING){
+    // watch pairing button
+    //Serial.println("Entering automatic pairing state...");
+    PairSetup();
+  }
+}
 
 void setup() {
   currentState = RECEIVER_STATE_STARTUP;
   bool startupOK = true;
 
-  Serial.begin(115200);
+  delay(5000);
+    Serial.begin(115200);
+  /* while(!Serial){} // DEBUG */
   Serial.println("Vector Space {Combat Robot}");
   Serial.println(SOFTWARE_VERSION);
   Serial.println("https://github.com/VectorSpaceHQ/VS_combat_robot\r\n");
@@ -108,8 +117,8 @@ void loop(){
 
   SetState(cmd_msg, rsp_msg);
   ParseCLI(); // doesn't need to happen very often
-
-  
+  ParseState();
 
   delay(10); // not sure if this is necessary
+  
 }

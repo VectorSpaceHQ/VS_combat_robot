@@ -43,7 +43,7 @@ bool espNowSetup()
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
-  Serial.print("Receiver WiFi Initialized at MAC "); Serial.println(WiFi.macAddress());
+  Serial.print("Receiver Initialized at MAC "); Serial.println(WiFi.macAddress());
 
   // Init ESP-NOW
   if (esp_now_init() != ESP_OK)
@@ -64,38 +64,50 @@ bool espNowSetup()
       if(addressLength != 6)
       {
           Serial.println("ERROR: transmitter address stored in Comms/Address is not 6 bytes long");
-          return false;
+          //return false;
       }
   } else {
       Serial.println("WARNING: No transmitter address stored in Comms/Address");
       Serial.println("Store Comms address by typing: 'setp Comms Address Bytes FFFFFFFFFFFF'");
 
-      // Attempt auto pairing state
-      PairSetup();
+
   }
   transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
 
   // Add peer
-  if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
-    Serial.println("ERROR: Failed to add transmitter as peer");
-    return false;
-  }
-  char messageBuffer[255];
-  sprintf(messageBuffer,"Transmitter Configured at MAC %02X:%02X:%02X:%02X:%02X:%02X",
-    transmitterCommsInfo.peer_addr[0],
-    transmitterCommsInfo.peer_addr[1],
-    transmitterCommsInfo.peer_addr[2],
-    transmitterCommsInfo.peer_addr[3],
-    transmitterCommsInfo.peer_addr[4],
-    transmitterCommsInfo.peer_addr[5]);
-  Serial.println(messageBuffer);
+  // if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
+  //   Serial.println("ERROR: Failed to add transmitter as peer");
+  //   return false;
+  // }
+  //34:85:18:06:1F:28
+  AddPeer(transmitterCommsInfo);
+
 
   commandMessage.id = 0;
   responseMessage.command_id = 0;
   return true;
 }
 
+
+bool AddPeer(esp_now_peer_info_t CommsInfo){
+    if (esp_now_add_peer(&CommsInfo) != ESP_OK){
+        Serial.println("ERROR: Failed to add transmitter as peer");
+        return false;
+    }
+    else{
+        char messageBuffer[255];
+        sprintf(messageBuffer,"Transmitter Configured at MAC %02X:%02X:%02X:%02X:%02X:%02X",
+                transmitterCommsInfo.peer_addr[0],
+                transmitterCommsInfo.peer_addr[1],
+                transmitterCommsInfo.peer_addr[2],
+                transmitterCommsInfo.peer_addr[3],
+                transmitterCommsInfo.peer_addr[4],
+                transmitterCommsInfo.peer_addr[5]);
+        Serial.println(messageBuffer);
+        return true;
+    }
+}
 
 bool sendResponse(ReceiverState currentState, ReceiverFault currentFaults, ReceiverWarning currentWarnings)
 {

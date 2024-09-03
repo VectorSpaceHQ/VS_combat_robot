@@ -1,13 +1,8 @@
-#include <Arduino.h>
 #include "auto_pairing.h"
-#include <BLEDevice.h>
-#include <BLEUtils.h>
-#include <BLEScan.h>
-#include <BLEAdvertisedDevice.h>
 
 #define PIN_PAIR_BUTTON    D9 // Same as "B" boot button
 #define PIN_LED_RED   D7
-#define PIN_LED_BLUE  D8
+#define PIN_LED_BLUE  D1 // D8
 
 #define UUID_SERVICE          "d91fdc86-46f8-478f-8dec-ebdc0a1188b2"
 #define UUID_CHARACTERISTIC   "56100987-749a-4014-bc22-0be2f5af59d0"
@@ -71,19 +66,7 @@ inline void setRedLED(bool ledOn) {
 }
 
 
-void PairLoop() {
-    switch (deviceMode) {
-    case (Waiting):
-        loopWaiting();
-        break;
-    case (Discovering):
-        loopDiscovering();
-        break;
-    case (Discovered):
-        loopDiscovered();
-        break;
-    }
-}
+
 
 void PairSetup() {
   // Initialise Serial first
@@ -178,10 +161,17 @@ inline bool connectToDevice() {
   char macStr[18] = { 0 };
   const char* rawData = pRemoteCharacteristic->readValue().c_str();
 
-  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
-
+  sprintf(macStr, "%02X%02X%02X%02X%02X%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
   Serial.print("Value is: ");
   Serial.println(String(macStr));
+
+/*   byte transmitterMac [] = {0x30 , 0x30 , 0X5C ,  0X73 , 0XFF , 0XFF}; */
+  uint8_t* transmitterMac = pRemoteCharacteristic->readRawData();
+  Preferences prefs;
+  prefs.begin("Comms");
+  prefs.putBytes("Address", transmitterMac, 6);
+  prefs.end();
+  espNowSetup(); // setup with newly found mac address
 
   deviceMode = Discovered;
   discoveredAt = millis();
@@ -245,4 +235,18 @@ inline void loopDiscovered() {
     deviceMode = Waiting;
     Serial.println("Going back to Waiting mode");
   }
+}
+
+void PairLoop() {
+    switch (deviceMode) {
+    case (Waiting):
+        loopWaiting();
+        break;
+    case (Discovering):
+        loopDiscovering();
+        break;
+    case (Discovered):
+        loopDiscovered();
+        break;
+    }
 }

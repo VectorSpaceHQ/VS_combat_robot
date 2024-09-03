@@ -15,5 +15,7 @@ bool sendResponse(ReceiverState, ReceiverFault, ReceiverWarning);
 CommandMessage GetCommandMessage();
 ResponseMessage GetResponseMessage();
 void SetState();
+bool AddPeer(esp_now_peer_info_t);
+
 
 #endif
