@@ -124,6 +124,6 @@ void loop(){
 
   pairButton.loop(&commsLED); // Check status of pairbutton
 
-  delay(10); // not sure if this is necessary
+  //delay(10); // not sure if this is necessary
   
 }
