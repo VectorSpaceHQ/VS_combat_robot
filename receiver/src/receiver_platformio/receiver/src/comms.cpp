@@ -75,14 +75,7 @@ bool espNowSetup()
   transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
 
-  // Add peer
-  // if (esp_now_add_peer(&transmitterCommsInfo) != ESP_OK){
-  //   Serial.println("ERROR: Failed to add transmitter as peer");
-  //   return false;
-  // }
-  //34:85:18:06:1F:28
   AddPeer(transmitterCommsInfo);
-
 
   commandMessage.id = 0;
   responseMessage.command_id = 0;

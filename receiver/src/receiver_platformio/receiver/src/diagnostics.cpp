@@ -4,8 +4,7 @@
 #include "hardware.h"
 
 
-LED comms(PIN_COMMS_LED);
-LED optional(PIN_OPT_LED);
+
 
 Diagnostics::Diagnostics()
 {
@@ -19,14 +18,15 @@ bool Diagnostics::setup()
   return _isSetup;
 }
 
-void Diagnostics::loop(ReceiverState currentState)
+void Diagnostics::loop(ReceiverState currentState, LED comms, LED optional)
 {
     // blink comms pin
     if (currentState == RECEIVER_STATE_CONNECTING){
         comms.blink(200);
     }
     else if(currentState == RECEIVER_STATE_OPERATION){
-        comms.on();
+        /* comms.on(); */
+        comms.blink(500);
     }
     // Fault: blink pins rapidly
     else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){

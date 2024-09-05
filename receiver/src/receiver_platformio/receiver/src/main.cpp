@@ -27,6 +27,9 @@ DriveMotor leftMotor;
 DriveMotor rightMotor;
 Diagnostics diagnostics;
 Weapon weapon(D5);
+PairButton pairButton(D9);
+LED commsLED(PIN_COMMS_LED);
+LED optionalLED(PIN_OPT_LED);
 
 //globals for receiver states
 ReceiverState currentState = RECEIVER_STATE_BOOT;
@@ -113,11 +116,13 @@ void loop(){
   leftMotor.loop(cmd_msg.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(cmd_msg.right_speed, currentState == RECEIVER_STATE_OPERATION);
   weapon.loop(cmd_msg.weapon_speed, currentState == RECEIVER_STATE_OPERATION);
-  diagnostics.loop(currentState);
+  /* diagnostics.loop(currentState, commsLED, optionalLED); */
 
   SetState(cmd_msg, rsp_msg);
   ParseCLI(); // doesn't need to happen very often
   ParseState();
+
+  pairButton.loop(&commsLED); // Check status of pairbutton
 
   delay(10); // not sure if this is necessary
   

@@ -1,9 +1,6 @@
 #include "auto_pairing.h"
 
 #define PIN_PAIR_BUTTON    D9 // Same as "B" boot button
-#define PIN_LED_RED   D7
-#define PIN_LED_BLUE  D1 // D8
-
 #define UUID_SERVICE          "d91fdc86-46f8-478f-8dec-ebdc0a1188b2"
 #define UUID_CHARACTERISTIC   "56100987-749a-4014-bc22-0be2f5af59d0"
 
@@ -26,12 +23,58 @@ enum DeviceMode {
 
 DeviceMode deviceMode = Waiting; // We are initially Waiting
 
-enum ButtonState {
-  ButtonDown, // The button is being pressed/held
-  ButtonUp    // The button has been released
-};
-
 ButtonState buttonState;
+
+
+PairButton::PairButton(int Pin){
+    _isSetup = true;
+    _pin = Pin;
+    pinMode(_pin, INPUT);
+    _pairing_state = false;
+}
+
+ButtonState PairButton::getButtonState(){
+  int currentState = digitalRead(_pin);
+    if (_buttonState == ButtonUp && currentState == LOW)
+    {
+      Serial.println("button hold started");
+      _buttonHoldStart = millis();
+      _buttonState = ButtonDown;
+      return ButtonDown;
+    }
+    else if (_buttonState == ButtonDown && currentState == LOW){
+      _buttonState = ButtonDown;
+      return ButtonDown;
+    }
+    else{
+      _buttonState = ButtonUp;
+      return ButtonUp;
+    }
+}
+
+ButtonState PairButton::setButtonState(ButtonState state){
+  _buttonState = state;
+}
+
+// if button pressed for duration, go into pairing mode and blink led
+void PairButton::loop(LED *commsLED){
+  (*this).getButtonState();
+  if (_buttonState == ButtonDown && millis() - _buttonHoldStart > _buttonHoldTime){
+    Serial.println("GOING INTO PAIR MODE...");
+    _pairing_state = true;
+  }
+  if (millis() - _buttonHoldStart > 15000){
+      _pairing_state = false;
+      commsLED->off();
+  }
+
+  if (_pairing_state == true){
+      Serial.println("pairing");
+      commsLED->blink(20);
+
+      loopDiscovering();
+  }
+}
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
@@ -50,28 +93,7 @@ inline ButtonState getButtonState() {
   return digitalRead(PIN_PAIR_BUTTON) == LOW ? ButtonDown : ButtonUp;
 }
 
-unsigned long nextFlash; // This will hold the millis() value of our next Flash
-#define INTERVAL_FLASH  500 // This is our Flash Interval (500ms, 0.5 seconds)
-
-inline void flashBlueLED() {
-  if (millis() < nextFlash) { return; } // It isn't time yet, so nothing to do.
-
-  digitalWrite(PIN_LED_BLUE, !digitalRead(PIN_LED_BLUE)); // Toggle the LED State
-
-  nextFlash = millis() + INTERVAL_FLASH; // Sets the time it should toggle again.
-}
-
-inline void setRedLED(bool ledOn) {
-  digitalWrite(PIN_LED_RED, ledOn); // True = HIGH, False = LOW
-}
-
-
-
-
 void PairSetup() {
-  // Initialise Serial first
-  Serial.begin(115200); // Set Serial Monitor to 115200 baud
-
   BLEDevice::init("Flowduino Auto-Discovery Demo - Slave");
 
   pBLEScan = BLEDevice::getScan(); //create new scan
@@ -81,17 +103,15 @@ void PairSetup() {
   pBLEScan->setWindow(99);  // less or equal setInterval value
 
   // Set our Pin Modes
-  pinMode(PIN_PAIR_BUTTON, INPUT);     // Button Input
-  pinMode(PIN_LED_RED, OUTPUT);   // Red LED Output
-  pinMode(PIN_LED_BLUE, OUTPUT);  // Blue LED Output
+  // pinMode(PIN_PAIR_BUTTON, INPUT);     // Button Input
 
   // Get the initial state of our Button
   buttonState = getButtonState();
 
-  while (deviceMode != Discovered)
-  {
-      PairLoop();
-  }
+  // while (deviceMode != Discovered)
+  // {
+  //     PairLoop();
+  // }
 }
 
 unsigned long buttonHoldStart; // The millis() value of the initial Button push down
@@ -123,7 +143,6 @@ inline void loopWaiting() {
     // We now initiate Discovering!
     Serial.println("Initiating Discovering");
     deviceMode = Discovering;
-    setRedLED(false);
     discoveryStart = millis();
     buttonHoldStart = discoveryStart;
   }
@@ -161,10 +180,11 @@ inline bool connectToDevice() {
   char macStr[18] = { 0 };
   const char* rawData = pRemoteCharacteristic->readValue().c_str();
 
-  sprintf(macStr, "%02X%02X%02X%02X%02X%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
-  Serial.print("Value is: ");
+  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
+  Serial.print("Mac Address is: ");
   Serial.println(String(macStr));
 
+  // for testing ->
 /*   byte transmitterMac [] = {0x30 , 0x30 , 0X5C ,  0X73 , 0XFF , 0XFF}; */
   uint8_t* transmitterMac = pRemoteCharacteristic->readRawData();
   Preferences prefs;
@@ -181,8 +201,6 @@ inline bool connectToDevice() {
 
 // The Loop routine when our Device is in Discovering Mode
 inline void loopDiscovering() {
-  flashBlueLED();
-
   // Scan for BLE Devices
   deviceFound = false;
   BLEScanResults foundDevices = pBLEScan->start(3, false);
@@ -217,8 +235,6 @@ inline void loopDiscovering() {
     // We now initiate Discovering!
     Serial.println("Cancelling Discovering");
     deviceMode = Waiting;
-    setRedLED(true);
-    digitalWrite(PIN_LED_BLUE, LOW); // Ensure Blue LED is OFF
     buttonHoldStart = millis();
   }
 }
@@ -231,7 +247,6 @@ inline void loopDiscovered() {
   }
 
   if (millis() > discoveredAt + BUTTON_HOLD_TIME) {
-    digitalWrite(PIN_LED_BLUE, LOW);
     deviceMode = Waiting;
     Serial.println("Going back to Waiting mode");
   }
