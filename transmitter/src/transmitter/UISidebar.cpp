@@ -15,12 +15,20 @@ UISidebar::UISidebar(const uint8_t* icon, UIWidget* next) : UIRows(nullptr, next
   sidebarIconPadding(UIExpansion::None, UIAlignment::Center, UISize(1,1), &sidebarIcon,&wifiIndicatorPadding)
 {
   attachChildren(&sidebarIconPadding);
+  wifiIndicator.setWifiIcon(0);
+  batteryIndicator.setValue(0);
+  statusIndicator.setStatusIcon(UIStatusIcon::None);
 }
 
 void UISidebar::updateWifiStrength(int16_t rssi)
 {
-  uint16_t strength = map(rssi,-80,-40,0,0xFFFF);
-  wifiIndicator.setWifiIcon(strength);
+  if(rssi == 0) //assume some kind of 'empty' data, even though 0 RSSI would be amazing signal strength
+  {
+    wifiIndicator.setWifiIcon(0);
+  } else {
+    uint16_t strength = map(rssi,-80,-40,0,0xFFFF);
+    wifiIndicator.setWifiIcon(strength);
+  }
 }
 
 void UISidebar::updateBatteryLevel(uint16_t stateOfCharge)
