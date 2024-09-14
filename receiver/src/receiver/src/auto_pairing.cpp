@@ -56,9 +56,6 @@ ButtonState PairButton::getButtonState(){
     }
 }
 
-ButtonState PairButton::setButtonState(ButtonState state){
-  _buttonState = state;
-}
 
 // if button pressed for duration, go into pairing mode and blink led
 void PairButton::loop(LED *commsLED){
