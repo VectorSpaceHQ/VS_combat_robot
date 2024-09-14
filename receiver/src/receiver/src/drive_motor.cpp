@@ -23,7 +23,7 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
         .speed_mode       = LEDC_LOW_SPEED_MODE,
         .duty_resolution  = LEDC_TIMER_8_BIT,
         .timer_num        = timerA,
-        .freq_hz          = 5000,  // Set output frequency at 5 kHz
+        .freq_hz          = 1000,  // Set output frequency at 5 kHz
         .clk_cfg          = LEDC_AUTO_CLK
     };
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));

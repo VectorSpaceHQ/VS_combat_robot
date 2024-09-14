@@ -3,9 +3,9 @@
 #include "common.h"
 #include "hardware.h"
 
-LED pwr(PIN_PWR_LED);
-LED comms(PIN_COMMS_LED);
-  
+
+
+
 Diagnostics::Diagnostics()
 {
   _isSetup = false;
@@ -14,25 +14,24 @@ Diagnostics::Diagnostics()
 
 bool Diagnostics::setup()
 {
-  pwr.on();
-
   _isSetup = true;
   return _isSetup;
 }
 
-void Diagnostics::loop(ReceiverState currentState)
+void Diagnostics::loop(ReceiverState currentState, LED comms, LED optional)
 {
     // blink comms pin
     if (currentState == RECEIVER_STATE_CONNECTING){
         comms.blink(200);
     }
     else if(currentState == RECEIVER_STATE_OPERATION){
-        pwr.on();
-        comms.on();
+        /* comms.on(); */
+        comms.blink(500);
     }
-    // blink pwr pin on fault
+    // Fault: blink pins rapidly
     else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){
-        pwr.blink(100);
+        comms.blink(100);
+        optional.blink(100);
     }
 }
 
