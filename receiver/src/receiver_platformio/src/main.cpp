@@ -65,19 +65,11 @@ void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
     }
 }
 
-void ParseState(){
-  if (currentState == RECEIVER_STATE_CONNECTING){
-    // watch pairing button
-    //Serial.println("Entering automatic pairing state...");
-    PairSetup();
-  }
-}
 
 void setup() {
   currentState = RECEIVER_STATE_STARTUP;
   bool startupOK = true;
 
-  delay(5000);
     Serial.begin(115200);
   /* while(!Serial){} // DEBUG */
   Serial.println("Vector Space {Combat Robot}");
@@ -120,10 +112,10 @@ void loop(){
 
   SetState(cmd_msg, rsp_msg);
   ParseCLI(); // doesn't need to happen very often
-  ParseState();
+  
 
   pairButton.loop(&commsLED); // Check status of pairbutton
 
-  //delay(10); // not sure if this is necessary
-  
+  //Serial.println(cmd_msg.left_speed);
+
 }

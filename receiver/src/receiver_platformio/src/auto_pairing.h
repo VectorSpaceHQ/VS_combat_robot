@@ -1,7 +1,7 @@
 #ifndef AUTO_PAIRING_H
 #define AUTO_PAIRING_H
 #include "Arduino.h"
-#include "comms.h"
+#include "wifi_comms.h"
 #include "diagnostics.h"
 #include <BLEDevice.h>
 #include <BLEUtils.h>

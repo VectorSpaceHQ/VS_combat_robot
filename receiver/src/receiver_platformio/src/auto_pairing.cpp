@@ -12,6 +12,9 @@ BLEAdvertisedDevice _advertisedDevice;
 bool deviceFound = false;
 bool clientConnected = false;
 unsigned long discoveredAt;
+bool _paired_state = false;
+bool _initialized = false;
+
 
 // We use an Enum to define the Mode of our Device
 enum DeviceMode {
@@ -31,6 +34,7 @@ PairButton::PairButton(int Pin){
     _pin = Pin;
     pinMode(_pin, INPUT);
     _pairing_state = false;
+
 }
 
 ButtonState PairButton::getButtonState(){
@@ -59,11 +63,28 @@ ButtonState PairButton::setButtonState(ButtonState state){
 // if button pressed for duration, go into pairing mode and blink led
 void PairButton::loop(LED *commsLED){
   (*this).getButtonState();
+
+  if (_initialized == false){
+    PairSetup();
+    _initialized = true;
+  }
+
+  if (_paired_state == true){
+    return;
+  }
+  if (_buttonState == ButtonDown and _pairing_state == false){
+    commsLED->on();
+  }
+  else if (_buttonState == ButtonDown and _pairing_state == false){
+    commsLED->off();
+  }
+
   if (_buttonState == ButtonDown && millis() - _buttonHoldStart > _buttonHoldTime){
     Serial.println("GOING INTO PAIR MODE...");
     _pairing_state = true;
   }
-  if (millis() - _buttonHoldStart > 15000){
+  if (millis() - _buttonHoldStart > 20000 && _pairing_state){
+      Serial.println("giving up on pairing");
       _pairing_state = false;
       commsLED->off();
   }
@@ -94,6 +115,7 @@ inline ButtonState getButtonState() {
 }
 
 void PairSetup() {
+  Serial.println("Pair Setup starting");
   BLEDevice::init("Flowduino Auto-Discovery Demo - Slave");
 
   pBLEScan = BLEDevice::getScan(); //create new scan
@@ -102,16 +124,9 @@ void PairSetup() {
   pBLEScan->setInterval(100);
   pBLEScan->setWindow(99);  // less or equal setInterval value
 
-  // Set our Pin Modes
-  // pinMode(PIN_PAIR_BUTTON, INPUT);     // Button Input
-
   // Get the initial state of our Button
   buttonState = getButtonState();
 
-  // while (deviceMode != Discovered)
-  // {
-  //     PairLoop();
-  // }
 }
 
 unsigned long buttonHoldStart; // The millis() value of the initial Button push down
@@ -135,6 +150,7 @@ inline void loopWaiting() {
     buttonHoldStart = millis();
     buttonState = currentState;
     Serial.println("Button Hold Started");
+
     return; // Need not proceed further
   }
 
@@ -181,17 +197,41 @@ inline bool connectToDevice() {
   const char* rawData = pRemoteCharacteristic->readValue().c_str();
 
   sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
-  Serial.print("Mac Address is: ");
+  Serial.print("Transmitter Mac Address is: ");
   Serial.println(String(macStr));
 
+
+  Serial.print("Storing Transmitter Mac in Prefs: ");
   // for testing ->
-/*   byte transmitterMac [] = {0x30 , 0x30 , 0X5C ,  0X73 , 0XFF , 0XFF}; */
+  /* byte transmitterMac [] = {0x30 , 0x30 , 0X5C ,  0X73 , 0XFF , 0XFF};  */
   uint8_t* transmitterMac = pRemoteCharacteristic->readRawData();
+
+  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", transmitterMac[0], transmitterMac[1], transmitterMac[2], transmitterMac[3], transmitterMac[4], transmitterMac[5]);
+  Serial.println(String(macStr));
+
   Preferences prefs;
   prefs.begin("Comms");
   prefs.putBytes("Address", transmitterMac, 6);
+
+  esp_now_peer_info_t transmitterCommsInfo;
+  size_t addressLength = prefs.getBytes("Address",transmitterCommsInfo.peer_addr,6);
+  transmitterCommsInfo.channel = 0;
+  transmitterCommsInfo.encrypt = false;
   prefs.end();
-  espNowSetup(); // setup with newly found mac address
+
+  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", transmitterCommsInfo.peer_addr[0], transmitterCommsInfo.peer_addr[1], transmitterCommsInfo.peer_addr[2], transmitterCommsInfo.peer_addr[3], transmitterCommsInfo.peer_addr[4], transmitterCommsInfo.peer_addr[5]);
+  Serial.print("Transmitter Mac Address pulled with hex formatting is: ");
+  Serial.println(String(macStr));
+
+  // Send the receiver's mac address back to the transmitter
+  // String newValue = "Time since boot: " + String(millis() / 1000);
+  String newValue = WiFi.macAddress();
+  Serial.print("Setting characteristic value to RX MAC: ");
+  Serial.println(newValue.c_str() ); 
+  pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());
+  
+  // This is sending by wifi, not BLE. NEed to send BLE first.
+  _paired_state = AddPeer(transmitterCommsInfo);
 
   deviceMode = Discovered;
   discoveredAt = millis();
@@ -208,47 +248,6 @@ inline void loopDiscovering() {
 
   if (deviceFound) {
     if (connectToDevice()) { return; }
-  }
-
-  ButtonState currentState = getButtonState();
-
-  // Down to Up
-  if (buttonState == ButtonDown && currentState == ButtonUp) {
-    buttonState = currentState; // Update the global variable accordingly
-    return; // Need not proceed further
-  }
-
-  // Up to Down
-  if (buttonState == ButtonUp && currentState == ButtonDown) {
-    // The Button was just pressed down...
-    buttonHoldStart = millis();
-    buttonState = currentState;
-    Serial.println("Button Hold Started");
-    return; // Need not proceed further
-  }
-
-  // Held Down OR Timed Out
-  if (
-       (buttonState == ButtonDown && currentState == ButtonDown && millis() > buttonHoldStart + BUTTON_HOLD_TIME) ||
-       (millis() > discoveryStart + DISCOVERY_TIMEOUT)
-     ){
-    // We now initiate Discovering!
-    Serial.println("Cancelling Discovering");
-    deviceMode = Waiting;
-    buttonHoldStart = millis();
-  }
-}
-
-// The Loop routine when our Device is in Discovered Mode
-inline void loopDiscovered() {
-  if (discoveredAt == 0) {
-    discoveredAt = millis();
-    return;
-  }
-
-  if (millis() > discoveredAt + BUTTON_HOLD_TIME) {
-    deviceMode = Waiting;
-    Serial.println("Going back to Waiting mode");
   }
 }
 
