@@ -5,7 +5,7 @@
 UISpeedDisplay::UISpeedDisplay(UIWidget* next) : UIRows(nullptr,next),
   negativeSpeed(SpeedDisplayBarWidth, UISize::MAX_LEN, UIDirection::TopToDown),
   speedDivider(&negativeSpeed),
-  positiveSpeed(SpeedDisplayBarWidth, UISize::MAX_LEN, UIDirection::TopToDown, &speedDivider)
+  positiveSpeed(SpeedDisplayBarWidth, UISize::MAX_LEN, UIDirection::DownToTop, &speedDivider)
 {
   attachChildren(&positiveSpeed);
 }
@@ -15,10 +15,10 @@ void UISpeedDisplay::setSpeed(int16_t speed)
   if(speed >= 0)
   {
     negativeSpeed.clearValue();
-    positiveSpeed.setValue((uint16_t)speed);
+    positiveSpeed.setValue(2 * (uint16_t)speed);
   } else {
     positiveSpeed.clearValue();
-    negativeSpeed.setValue((uint16_t)(-1*speed));
+    negativeSpeed.setValue(2 * (uint16_t)(-1*speed));
   }
 }
 

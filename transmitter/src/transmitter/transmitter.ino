@@ -44,8 +44,12 @@ Joystick rightJoystick;
 //LED fault_led(PIN_FAULT_LED);
 //LED comms_led(PIN_COMMS_LED);
 
+uint16_t batteryStateOfCharge;
 float batteryVoltage;
 float batteryVoltageMultiplier;
+float batteryVoltageLowRange;
+float batteryVoltageHighRange;
+float batteryVoltageAlarmLimit;
 
 
 //globals for CLI
@@ -95,6 +99,7 @@ void setup() {
   pinMode(PIN_RIGHT_TRIGGER,INPUT_PULLUP);
   pinMode(PIN_LEFT_TRIGGER,INPUT_PULLUP);
   pinMode(PIN_BATTERY_SENSE,INPUT_PULLUP);
+  batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
   
   pinMode(PIN_FAULT_LED,OUTPUT);
   digitalWrite(PIN_FAULT_LED,LOW);
@@ -103,6 +108,9 @@ void setup() {
 
   preferences.begin("Battery");
   batteryVoltageMultiplier = preferences.getFloat("Multiplier",DEFAULT_BATTERY_VOLTAGE_MULTIPLIER);
+  batteryVoltageLowRange = preferences.getFloat("LowRange",DEFAULT_BATTERY_LOW_RANGE_VOLTAGE);
+  batteryVoltageHighRange = preferences.getFloat("HighRange",DEFAULT_BATTERY_HIGH_RANGE_VOLTAGE);
+  batteryVoltageAlarmLimit = preferences.getFloat("AlarmLimit",DEFAULT_BATTERY_ALARM_LIMIT_VOLTAGE);
   preferences.end();
 
   startupOK &= screenSetup();
@@ -114,11 +122,16 @@ void setup() {
     currentState = TRANSMITTER_STATE_CRITICAL_FAULT;
     Serial.println("ERROR: Critical fault during startup is preventing transition to normal operation");
     digitalWrite(PIN_FAULT_LED,HIGH);
+    controllerSidebar.updateStatusIndicator(UIStatusIcon::Fault);
+    messageBanner.setMessage(UIStatusIcon::Fault,"Critical Fault","Unable to complete startup");
   } else {
     currentState = TRANSMITTER_STATE_CONNECTING;
     Serial.println("Startup Successful, transitioning to connecting state");
+    controllerSidebar.updateStatusIndicator(UIStatusIcon::None);
+    messageBanner.setMessage(UIStatusIcon::Info,"Startup Complete","Connecting to robot...");
     digitalWrite(PIN_FAULT_LED,LOW);
   }
+
   
     Serial.println();
     Serial.print("> ");
@@ -137,7 +150,9 @@ void loop() {
   Serial.print("command id: ");
   Serial.println(responseMessage.command_id);*/
 
-  batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
+  batteryVoltage = 0.99 * batteryVoltage + 0.01 * batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
+  batteryStateOfCharge = map(static_cast<uint16_t>(batteryVoltage*1000), batteryVoltageLowRange*1000, batteryVoltageHighRange*1000, 0, 0xFFFF);
+  controllerSidebar.updateBatteryLevel(batteryStateOfCharge);
 
   if(currentState & (TRANSMITTER_STATE_OPERATION | TRANSMITTER_STATE_CONNECTING))
   {
@@ -149,22 +164,32 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
+    robotSidebar.updateStatusIndicator(UIStatusIcon::None);
+    robotSidebar.updateWifiStrength(responseMessage.wifi_strength);
+    robotSidebar.updateBatteryLevel(256 * (uint16_t)responseMessage.battery_charge);
+    controllerSidebar.updateWifiStrength(0);//#TODO!
     //comms_led.on();
     if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
     {
       Serial.println("ERROR: Lost connection with receiver");
       currentState = TRANSMITTER_STATE_CONNECTING;
-      
+      robotSidebar.updateStatusIndicator(UIStatusIcon::Question);
+      robotSidebar.updateWifiStrength(0);
+      robotSidebar.updateBatteryLevel(0);
+      messageBanner.setMessage(UIStatusIcon::Warning,"Robot Lost","Connection Lost");
+      controllerSidebar.updateWifiStrength(0);
     }
   }
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)
   {
+    
     //comms_led.blink();
     if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
     {
       Serial.println("Receiver response received. Transitioning to operation state");
       currentState = TRANSMITTER_STATE_OPERATION;
+      messageBanner.setMessage(UIStatusIcon::Info,"Robot Connected","Transmitter is Operating");
     }
   }
 
