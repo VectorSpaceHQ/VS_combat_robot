@@ -8,7 +8,7 @@
 #include "common.h"
 #include "drive_motor.h"
 #include "weapon.h"
-#include "comms.h"
+#include "wifi_comms.h"
 #include "diagnostics.h"
 #include "cli.h"
 #include "auto_pairing.h"

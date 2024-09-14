@@ -250,17 +250,3 @@ inline void loopDiscovering() {
     if (connectToDevice()) { return; }
   }
 }
-
-void PairLoop() {
-    switch (deviceMode) {
-    case (Waiting):
-        loopWaiting();
-        break;
-    case (Discovering):
-        loopDiscovering();
-        break;
-    case (Discovered):
-        loopDiscovered();
-        break;
-    }
-}

@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include <PreferencesCLI.h>
 #include "common.h"
-#include "comms.h"
+#include "wifi_comms.h"
 
 void cliErrorCallback(cmd_error* e);
 void helpCommandCallback(cmd* commandPointer);
