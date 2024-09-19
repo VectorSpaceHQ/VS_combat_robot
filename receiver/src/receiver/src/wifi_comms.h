@@ -18,6 +18,6 @@ void SetState();
 bool AddPeer(esp_now_peer_info_t);
 void setMAC();
 esp_now_peer_info_t getMAC();
-
+void printMAC(uint8_t* mac);
 
 #endif

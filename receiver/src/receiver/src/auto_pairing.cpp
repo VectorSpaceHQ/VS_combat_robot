@@ -72,12 +72,11 @@ void PairButton::loop(LED *commsLED){
   if (_buttonState == ButtonDown and _pairing_state == false){
     commsLED->on();
   }
-  else if (_buttonState == ButtonDown and _pairing_state == false){
+  /* else if (_buttonState == ButtonDown and getButtonState() == ButtonUp){
     commsLED->off();
-  }
+  } */
 
   if (_buttonState == ButtonDown && millis() - _buttonHoldStart > _buttonHoldTime){
-    Serial.println("GOING INTO PAIR MODE...");
     _pairing_state = true;
   }
   if (millis() - _buttonHoldStart > 20000 && _pairing_state){
@@ -89,9 +88,9 @@ void PairButton::loop(LED *commsLED){
   if (_pairing_state == true){
       Serial.println("pairing");
       commsLED->blink(20);
-
       loopDiscovering();
   }
+
 }
 
 class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
@@ -162,6 +161,7 @@ inline void loopWaiting() {
 }
 
 inline bool connectToDevice() {
+  // BLE Connect to peer, add their MAC to prefs, send our MAC to their characteristic, AddPeer by Wifi
   pBLEClient = BLEDevice::createClient();
   Serial.println("Connecting To \"Flowduino Auto-Discovery Demo - Master\"");
   clientConnected = pBLEClient->connect(&_advertisedDevice);
@@ -189,39 +189,38 @@ inline bool connectToDevice() {
 
   Serial.println("YAY! We got the pRemoteCharacteristic!");
 
-  uint8_t mac[6];
-  char macStr[18] = { 0 };
-  const char* rawData = pRemoteCharacteristic->readValue().c_str();
+  const char* rawData = pRemoteCharacteristic->readValue().c_str(); // this is needed before doing readRawData somehow
 
-  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", rawData[0], rawData[1], rawData[2], rawData[3], rawData[4], rawData[5]);
-  Serial.print("Transmitter Mac Address is: ");
-  Serial.println(String(macStr));
-
-
-  Serial.print("Storing Transmitter Mac in Prefs: ");
-  // for testing ->
-  /* byte transmitterMac [] = {0x30 , 0x30 , 0X5C ,  0X73 , 0XFF , 0XFF};  */
   uint8_t* transmitterMac = pRemoteCharacteristic->readRawData();
-
-  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", transmitterMac[0], transmitterMac[1], transmitterMac[2], transmitterMac[3], transmitterMac[4], transmitterMac[5]);
-  Serial.println(String(macStr));
+  Serial.print("Storing Transmitter Mac in Prefs: ");
+  printMAC(transmitterMac);
 
   Preferences prefs;
   prefs.begin("Comms");
+
+  esp_now_peer_info_t oldTransmitterMac;
+  size_t addressLength = prefs.getBytes("Address",oldTransmitterMac.peer_addr,6);
+  Serial.print("Old transmitter mac is: ");
+  printMAC(oldTransmitterMac.peer_addr);
+
   prefs.putBytes("Address", transmitterMac, 6);
 
   esp_now_peer_info_t transmitterCommsInfo;
-  size_t addressLength = prefs.getBytes("Address",transmitterCommsInfo.peer_addr,6);
+  //size_t addressLength = prefs.getBytes("Address",transmitterCommsInfo.peer_addr,6);
+  addressLength = prefs.getBytes("Address",transmitterCommsInfo.peer_addr,6);  
   transmitterCommsInfo.channel = 0;
   transmitterCommsInfo.encrypt = false;
   prefs.end();
+  
+  Serial.print("Transmitter Mac Address pulled after prefs mod: ");
+  printMAC(transmitterCommsInfo.peer_addr);
 
-  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", transmitterCommsInfo.peer_addr[0], transmitterCommsInfo.peer_addr[1], transmitterCommsInfo.peer_addr[2], transmitterCommsInfo.peer_addr[3], transmitterCommsInfo.peer_addr[4], transmitterCommsInfo.peer_addr[5]);
-  Serial.print("Transmitter Mac Address pulled with hex formatting is: ");
-  Serial.println(String(macStr));
+  if (macCompare(transmitterCommsInfo.peer_addr, oldTransmitterMac.peer_addr)){
+    Serial.println("new MAC matches old. stopping here.");
+    return true;
+  }
 
   // Send the receiver's mac address back to the transmitter
-  // String newValue = "Time since boot: " + String(millis() / 1000);
   String newValue = WiFi.macAddress();
   Serial.print("Setting characteristic value to RX MAC: ");
   Serial.println(newValue.c_str() ); 
@@ -234,6 +233,23 @@ inline bool connectToDevice() {
   discoveredAt = millis();
 
   return true;
+}
+
+bool macCompare(uint8_t *a, uint8_t *b){
+  bool match = true;
+  for (int i=0; i<6; i++){
+    if(a[i] != b[i]){
+      match = false;
+    }
+  }
+
+  if (match == true)
+  {
+    return true;
+  }
+  else{
+    return false;
+  }
 }
 
 // The Loop routine when our Device is in Discovering Mode

@@ -30,6 +30,12 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&commandMessage, incomingData, sizeof(commandMessage));
 }
 
+void printMAC(uint8_t* mac){
+  char macStr[18] = { 0 };
+  sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+  Serial.println(String(macStr));
+}
+
 void setMAC(uint8_t* mac){
   // Put Peer's mac in prefs
   Preferences prefs;
@@ -118,19 +124,10 @@ bool espNowSetup()
 
 
 bool AddPeer(esp_now_peer_info_t CommsInfo){
-  // this is printing wrong
-  // should be 34:85:18:07:53:5C
-  // getting 70:F4:C9:3F:48:F1
-    char messageBuffer[255];
-        sprintf(messageBuffer,"Adding Peer at MAC %02X:%02X:%02X:%02X:%02X:%02X",
-                CommsInfo.peer_addr[0],
-                CommsInfo.peer_addr[1],
-                CommsInfo.peer_addr[2],
-                CommsInfo.peer_addr[3],
-                CommsInfo.peer_addr[4],
-                CommsInfo.peer_addr[5]);
-        Serial.println(messageBuffer);
-
+  Serial.print("Adding peer at MAC: ");
+  printMAC(CommsInfo.peer_addr);
+    
+    //if (esp_now_is_peer_exist(CommsInfo.peer_addr))
     if (esp_now_add_peer(&CommsInfo) != ESP_OK){
         Serial.println("ERROR: Failed to add transmitter as peer");
         return false;
@@ -139,6 +136,7 @@ bool AddPeer(esp_now_peer_info_t CommsInfo){
         Serial.println("Successfully added.");
         return true;
     }
+
 }
 
 bool sendResponse(ReceiverState currentState, ReceiverFault currentFaults, ReceiverWarning currentWarnings)

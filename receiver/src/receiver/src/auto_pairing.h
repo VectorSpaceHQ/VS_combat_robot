@@ -13,6 +13,7 @@ void PairLoop();
 void loopWaiting();
 void loopDiscovering();
 void loopDiscovered();
+bool macCompare(uint8_t *a, uint8_t *b);
 
 enum ButtonState {
     ButtonDown, // The button is being pressed/held

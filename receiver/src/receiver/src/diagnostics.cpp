@@ -18,20 +18,22 @@ bool Diagnostics::setup()
   return _isSetup;
 }
 
-void Diagnostics::loop(ReceiverState currentState, LED comms, LED optional)
+void Diagnostics::loop(ReceiverState currentState, LED *comms, LED *optional)
 {
     // blink comms pin
     if (currentState == RECEIVER_STATE_CONNECTING){
-        comms.blink(200);
+        comms->blink(200);
+    }
+    else if(currentState == RECEIVER_STATE_PAIRING){
+        comms->blink(50);
     }
     else if(currentState == RECEIVER_STATE_OPERATION){
-        /* comms.on(); */
-        comms.blink(500);
+        comms->blink(500);
     }
     // Fault: blink pins rapidly
     else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){
-        comms.blink(100);
-        optional.blink(100);
+        comms->blink(100);
+        optional->blink(100);
     }
 }
 
@@ -54,6 +56,7 @@ void LED::off(){
 }
 
 void LED::toggle(){
+    
     if (_value == 1){
         (*this).off();
     }
@@ -68,4 +71,18 @@ void LED::blink(int blink_rate){
         (*this).toggle();
         _last_value_change = millis();
     }
+}
+
+void connected(LED led1, LED led2){
+    // Blink LEDS in sequence that shows connection
+    led1.on();
+    led2.off();
+
+    for (int i=0; i<10; i++){
+        delay(20);
+        led1.toggle();
+        led2.toggle();
+    }
+    led1.off();
+    led2.off();
 }

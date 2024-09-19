@@ -108,7 +108,7 @@ void loop(){
   leftMotor.loop(cmd_msg.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(cmd_msg.right_speed, currentState == RECEIVER_STATE_OPERATION);
   weapon.loop(cmd_msg.weapon_speed, currentState == RECEIVER_STATE_OPERATION);
-  diagnostics.loop(currentState, commsLED, optionalLED);
+  diagnostics.loop(currentState, &commsLED, &optionalLED);
 
   SetState(cmd_msg, rsp_msg);
   ParseCLI(); // doesn't need to happen very often
@@ -116,6 +116,6 @@ void loop(){
 
   pairButton.loop(&commsLED); // Check status of pairbutton
 
-  //Serial.println(cmd_msg.left_speed);
+  //Serial.println(currentState);
 
 }

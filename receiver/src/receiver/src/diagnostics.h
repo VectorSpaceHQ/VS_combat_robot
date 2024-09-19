@@ -19,14 +19,14 @@ private:
     bool _isSetup;
     int _pin;
     bool _value;
-    unsigned long _last_value_change;
+    unsigned long _last_value_change = 0;
 };
 
 class Diagnostics {
 public:
     Diagnostics();
     bool setup();
-    void loop(ReceiverState currentState, LED comms, LED optional);
+    void loop(ReceiverState currentState, LED *comms, LED *optional);
     void connected();
     void disconnected();
 private:
