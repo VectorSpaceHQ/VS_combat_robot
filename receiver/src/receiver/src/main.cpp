@@ -43,6 +43,7 @@ ResponseMessage rsp_msg;            //outgoing
 
 
 void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
+  //Serial.println(cmd_msg);
   if(currentState == RECEIVER_STATE_CONNECTING)
     {
       if(cmd_msg.id != rsp_msg.command_id)

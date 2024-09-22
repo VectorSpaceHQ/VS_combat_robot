@@ -215,16 +215,17 @@ inline bool connectToDevice() {
   Serial.print("Transmitter Mac Address pulled after prefs mod: ");
   printMAC(transmitterCommsInfo.peer_addr);
 
+  // Send the receiver's mac address back to the transmitter
+  String newValue = WiFi.macAddress();
+  Serial.print("Setting TX characteristic value to RX MAC: ");
+  Serial.println(newValue.c_str() ); 
+  pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());
+
+
   if (macCompare(transmitterCommsInfo.peer_addr, oldTransmitterMac.peer_addr)){
     Serial.println("new MAC matches old. stopping here.");
     return true;
   }
-
-  // Send the receiver's mac address back to the transmitter
-  String newValue = WiFi.macAddress();
-  Serial.print("Setting characteristic value to RX MAC: ");
-  Serial.println(newValue.c_str() ); 
-  pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());
   
   // This is sending by wifi, not BLE. NEed to send BLE first.
   _paired_state = AddPeer(transmitterCommsInfo);

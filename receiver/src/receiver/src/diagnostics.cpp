@@ -28,7 +28,7 @@ void Diagnostics::loop(ReceiverState currentState, LED *comms, LED *optional)
         comms->blink(50);
     }
     else if(currentState == RECEIVER_STATE_OPERATION){
-        comms->blink(500);
+        comms->blink(800);
     }
     // Fault: blink pins rapidly
     else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){
