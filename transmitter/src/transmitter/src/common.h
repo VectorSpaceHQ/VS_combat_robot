@@ -38,6 +38,7 @@ enum ReceiverState : uint8_t
 {
 	RECEIVER_STATE_BOOT,		//initial state, sets up logs/serial then transitions to startup
 	RECEIVER_STATE_STARTUP,		//initializes all of the devices and configurations. transitions to connecting when ready
+	RECEIVER_STATE_PAIRING,
 	RECEIVER_STATE_CONNECTING,	//tries to connect to (waits to receive) commands from the transmitter. transitions to operation when a command is received
 	RECEIVER_STATE_OPERATION,	//indefinite state. falls back to connecting state if no commands received in a while
 	RECEIVER_STATE_CRITICAL_FAULT	//transition from any state when something terrible happens. probably needs to be rebooted, but logs may have good info
