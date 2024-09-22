@@ -16,6 +16,7 @@
 #include "UISidebar.h"
 #include "UIDashboard.h"
 #include "UIMessageBanner.h"
+#include "wifi_comms.h"
 
 #define SOFTWARE_VERSION "v1"
 
@@ -32,11 +33,10 @@ TransmitterFault currentFaults = TRANSMITTER_FAULT_NONE;
 TransmitterWarning currentWarnings = TRANSMITTER_WARNING_NONE;
 
 //globals for communication
-esp_now_peer_info_t receiverCommsInfo;  
-CommandMessage commandMessage;          //outgoing
-ResponseMessage responseMessage;        //incoming
-long responseMessageTime;
-long roundtripTime;         
+//esp_now_peer_info_t receiverCommsInfo;
+CommandMessage cmd_msg;          //outgoing
+ResponseMessage rsp_msg;        //incoming
+
 
 //globals for hardware
 Joystick leftJoystick;
@@ -78,93 +78,52 @@ UIDisplay displayManager=UIDisplay(&mainDivider);
 
 
 
-bool sendCommand() {
-  commandMessage.id++;
-  commandMessage.send_time = millis();
-  commandMessage.left_speed = leftJoystick.getValue();
-  commandMessage.right_speed = rightJoystick.getValue();
-  commandMessage.weapon_speed = digitalRead(PIN_WEAPON_TOGGLE_SWITCH) ? DEFAULT_WEAPON_SPEED : 0;
-  commandMessage.horn_frequency = digitalRead(PIN_RIGHT_THUMB_SWITCH) ? 0 : DEFAULT_HORN_FREQUENCY;
-  commandMessage.servo_position = 0;
-  commandMessage.clear_faults = RECEIVER_FAULT_NONE;
-  commandMessage.clear_warnings = RECEIVER_WARNING_NONE;
-
-  esp_err_t result = esp_now_send(receiverCommsInfo.peer_addr, (uint8_t *) &commandMessage, sizeof(commandMessage));
-  if(result != ESP_OK)
-  {
-    Serial.println("WARNING: command message may not have been sent");
-  }
-  return result == ESP_OK;
-
-  commandMessage.command = REMOTE_COMMAND_NONE;//clear out all commands (they are oneshots)
-}
-
-
-
-
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  roundtripTime = 0;
-}
-
-// Callback when data is received
-void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  memcpy(&responseMessage, incomingData, sizeof(responseMessage));
-  responseMessageTime = millis();
-  if(responseMessage.command_id == commandMessage.id)
-  {
-    roundtripTime = millis() - commandMessage.send_time;
-  } else {
-    Serial.println("ERROR: response message received out of order");
-  }
-}
-
 void cliErrorCallback(cmd_error* e)
 {
-  CommandError cmdError(e);
-  Serial.print("ERROR: ");
-  Serial.println(cmdError.toString());
+    CommandError cmdError(e);
+    Serial.print("ERROR: ");
+    Serial.println(cmdError.toString());
 
-  if (cmdError.hasCommand()) {
-      Serial.print(cmdError.getCommand().toString());
-  }
+    if (cmdError.hasCommand()) {
+        Serial.print(cmdError.getCommand().toString());
+    }
 }
 
 void helpCommandCallback(cmd* commandPointer)
 {
-  Command cmd(commandPointer);
-  Argument commandName = cmd.getArg("commandName");
-  if (commandName.isSet())
-  {
-    Command namedCommand = cli.getCommand(commandName.getValue());
-    if (namedCommand.getName())
+    Command cmd(commandPointer);
+    Argument commandName = cmd.getArg("commandName");
+    if (commandName.isSet())
     {
-      Serial.println(namedCommand.toString());
+        Command namedCommand = cli.getCommand(commandName.getValue());
+        if (namedCommand.getName())
+        {
+            Serial.println(namedCommand.toString());
+        } else {
+            sprintf(cliResponseBuffer,"No matching command found for name '%s'\r\n%s",namedCommand.toString(),helpCommand.toString());
+            Serial.println(cliResponseBuffer);
+        }
     } else {
-      sprintf(cliResponseBuffer,"No matching command found for name '%s'\r\n%s",namedCommand.toString(),helpCommand.toString());
-      Serial.println(cliResponseBuffer);
+        Serial.println(helpCommand.toString());
     }
-  } else {
-    Serial.println(helpCommand.toString());
-  }
 }
-
 void restartCommandCallback(cmd* commandPointer)
 {
-  Command cmd(commandPointer);
-  Argument transmitter = cmd.getArg("transmitter");
-  Argument receiver = cmd.getArg("receiver");
+    Command cmd(commandPointer);
+    Argument transmitter = cmd.getArg("transmitter");
+    Argument receiver = cmd.getArg("receiver");
 
-  if(receiver.isSet())
-  {
-    commandMessage.command = (RemoteCommand)(commandMessage.command | REMOTE_COMMAND_REBOOT);
-    Serial.println("Remote restart queued.");
-  }
+    if(receiver.isSet())
+    {
+        cmd_msg.command = (RemoteCommand)(cmd_msg.command | REMOTE_COMMAND_REBOOT);
+        Serial.println("Remote restart queued.");
+    }
 
-  if(transmitter.isSet())
-  {
-    restartTime = millis()+1000;
-    Serial.println("Local restart queued.");
-  }
+    if(transmitter.isSet())
+    {
+        restartTime = millis()+1000;
+        Serial.println("Local restart queued.");
+    }
 
 }
 
@@ -175,19 +134,18 @@ void getVariableCommandCallback(cmd* commandPointer)
   String variableName = variable.getValue();
 
   if(variableName.equalsIgnoreCase("millis")) Serial.println(millis());
-  else if (variableName.equalsIgnoreCase("commandMessageId")) Serial.println(commandMessage.id);
-  else if (variableName.equalsIgnoreCase("commandMessageTime")) Serial.println(commandMessage.id);
-  else if (variableName.equalsIgnoreCase("responseMessageId")) Serial.println(responseMessage.command_id);
-  else if (variableName.equalsIgnoreCase("leftSpeed")) Serial.println(commandMessage.left_speed);
-  else if (variableName.equalsIgnoreCase("rightSpeed")) Serial.println(commandMessage.right_speed);
+  else if (variableName.equalsIgnoreCase("commandMessageId")) Serial.println(cmd_msg.id);
+  else if (variableName.equalsIgnoreCase("commandMessageTime")) Serial.println(cmd_msg.id);
+  else if (variableName.equalsIgnoreCase("responseMessageId")) Serial.println(rsp_msg.command_id);
+  else if (variableName.equalsIgnoreCase("leftSpeed")) Serial.println(cmd_msg.left_speed);
+  else if (variableName.equalsIgnoreCase("rightSpeed")) Serial.println(cmd_msg.right_speed);
   else if (variableName.equalsIgnoreCase("leftStickV")) Serial.println(leftJoystick.getVoltage());
   else if (variableName.equalsIgnoreCase("rightStickV")) Serial.println(rightJoystick.getVoltage());
-  else if (variableName.equalsIgnoreCase("weaponSpeed")) Serial.println(commandMessage.weapon_speed);
+  else if (variableName.equalsIgnoreCase("weaponSpeed")) Serial.println(cmd_msg.weapon_speed);
   else if (variableName.equalsIgnoreCase("batteryVoltage")) Serial.println(batteryVoltage);
-  else if (variableName.equalsIgnoreCase("hornFreq")) Serial.println(commandMessage.horn_frequency);
+  else if (variableName.equalsIgnoreCase("hornFreq")) Serial.println(cmd_msg.horn_frequency);
   else Serial.println("Variable is not supported by this command");
 }
-
 
 bool cliSetup()
 {
@@ -225,63 +183,6 @@ bool screenSetup(){
   return true;
 }
 
-bool espNowSetup() {
-  // Set device as a Wi-Fi Station
-  WiFi.mode(WIFI_STA);
-  Serial.print("Transmitter WiFi Initialized at MAC "); Serial.println(WiFi.macAddress());
-
-  // Init ESP-NOW
-  if (esp_now_init() != ESP_OK)
-  {
-    Serial.println("ERROR: ESPNOW failed to init");
-    return false;
-  }
-  
-
-  // Once ESPNow is successfully Init, we will register for Send CB to
-  // get the status of Trasnmitted packet
-  esp_now_register_send_cb(OnDataSent);
-    // Register for a callback function that will be called when data is received
-  esp_now_register_recv_cb(OnDataRecv);
-
-  // Register peer
-  preferences.begin("Comms");
-  if(preferences.isKey("Address"))
-  {
-    size_t addressLength = preferences.getBytes("Address",receiverCommsInfo.peer_addr,6);
-    preferences.end();
-    if(addressLength != 6)
-    {
-      Serial.println("ERROR: receiver address stored in Comms/Address is not 6 bytes long");
-      return false;
-    } 
-  } else {
-    Serial.println("WARNING: No receiver address stored in Comms/Address");
-  }
-  receiverCommsInfo.channel = 0;
-  receiverCommsInfo.encrypt = false;
-
-  // Add peer
-  if (esp_now_add_peer(&receiverCommsInfo) != ESP_OK)
-  {
-    Serial.println("ERROR: Failed to add receiver as peer");
-    return false;
-  } 
-  char messageBuffer[255];
-  sprintf(messageBuffer,"Receiver Configured at MAC %02X:%02X:%02X:%02X:%02X:%02X",
-    receiverCommsInfo.peer_addr[0],
-    receiverCommsInfo.peer_addr[1],
-    receiverCommsInfo.peer_addr[2],
-    receiverCommsInfo.peer_addr[3],
-    receiverCommsInfo.peer_addr[4],
-    receiverCommsInfo.peer_addr[5]);
-  Serial.println(messageBuffer);
-
-  commandMessage.id = 1;
-  commandMessage.send_time = millis();
-
-  return true;
-}
 
 void setup() {
   // TESTING -----
@@ -290,7 +191,7 @@ void setup() {
   //comms_led.toggle();
   //delay(1000);
   // -------- -----
-  
+
   currentState = TRANSMITTER_STATE_STARTUP;
   bool startupOK = true;
 
@@ -308,7 +209,7 @@ void setup() {
   pinMode(PIN_LEFT_TRIGGER,INPUT_PULLUP);
   pinMode(PIN_BATTERY_SENSE,INPUT_PULLUP);
   batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
-  
+
   pinMode(PIN_FAULT_LED,OUTPUT);
   digitalWrite(PIN_FAULT_LED,LOW);
   pinMode(PIN_COMMS_LED,OUTPUT);
@@ -340,23 +241,17 @@ void setup() {
     digitalWrite(PIN_FAULT_LED,LOW);
   }
 
-  
+
     Serial.println();
     Serial.print("> ");
 }
 
 void loop() {
+  cmd_msg = GetCommandMessage();
+  rsp_msg = GetResponseMessage();
 
   leftJoystick.loop();
   rightJoystick.loop();
-  
-
-  // TESTING --------------
-  /*Serial.print(leftJoystick.getValue());
-  Serial.print(", ");
-  Serial.println(rightJoystick.getValue());
-  Serial.print("command id: ");
-  Serial.println(responseMessage.command_id);*/
 
   batteryVoltage = 0.99 * batteryVoltage + 0.01 * batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
   batteryStateOfCharge = map(static_cast<uint16_t>(batteryVoltage*1000), batteryVoltageLowRange*1000, batteryVoltageHighRange*1000, 0, 0xFFFF);
@@ -364,20 +259,20 @@ void loop() {
 
   if(currentState & (TRANSMITTER_STATE_OPERATION | TRANSMITTER_STATE_CONNECTING))
   {
-    if(millis() - commandMessage.send_time > 50){
-      sendCommand();
+    if(millis() - cmd_msg.send_time > 50){
+        sendCommand(leftJoystick, rightJoystick);
     }
-    
+
   }
 
   if(currentState == TRANSMITTER_STATE_OPERATION)
   {
     robotSidebar.updateStatusIndicator(UIStatusIcon::None);
-    robotSidebar.updateWifiStrength(responseMessage.wifi_strength);
-    robotSidebar.updateBatteryLevel(256 * (uint16_t)responseMessage.battery_charge);
+    robotSidebar.updateWifiStrength(rsp_msg.wifi_strength);
+    robotSidebar.updateBatteryLevel(256 * (uint16_t)rsp_msg.battery_charge);
     controllerSidebar.updateWifiStrength(0);//#TODO!
     //comms_led.on();
-    if((millis() - responseMessageTime) > CONNECTION_TIMEOUT_MS)
+    if((millis() - rsp_msg.responseMessageTime) > CONNECTION_TIMEOUT_MS)
     {
       Serial.println("ERROR: Lost connection with receiver");
       currentState = TRANSMITTER_STATE_CONNECTING;
@@ -391,9 +286,9 @@ void loop() {
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)
   {
-    
+
     //comms_led.blink();
-    if((millis() - responseMessageTime) < CONNECTION_TIMEOUT_MS)
+    if((millis() - rsp_msg.responseMessageTime) < CONNECTION_TIMEOUT_MS)
     {
       Serial.println("Receiver response received. Transitioning to operation state");
       currentState = TRANSMITTER_STATE_OPERATION;
@@ -420,6 +315,6 @@ void loop() {
     Serial.print("> ");
   }
 
-  dashboard.setValues(commandMessage);
+  dashboard.setValues(cmd_msg);
   displayManager.render(&screen);
 }

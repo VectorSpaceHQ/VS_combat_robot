@@ -97,6 +97,7 @@ struct ResponseMessage
     uint16_t board_voltage;		//current voltage (millivolts) of the receiver board
     uint8_t battery_charge;		//current state of charge (0-100, as %) of theprimary receiver battery
     int16_t wifi_strength;		//RSSI of the indicated CommandMessage
+	long responseMessageTime;
 };
 
 
