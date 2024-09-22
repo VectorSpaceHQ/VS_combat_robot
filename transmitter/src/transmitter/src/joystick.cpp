@@ -24,8 +24,9 @@ bool Joystick::setup(int analogPin, float neutralVoltage, float halfRangeVoltage
   return _isSetup;
 }
 
-bool Joystick::setup(int analogPin, Preferences prefs, const char* name, bool invert)
+bool Joystick::setup(int analogPin, const char* name, bool invert)
 {
+  Preferences prefs;
   prefs.begin(name,true);
 
   if(!prefs.isKey("NeutralVoltage")) {Serial.print("WARNING: No NeutralVoltage setting stored for "); Serial.println(name);}

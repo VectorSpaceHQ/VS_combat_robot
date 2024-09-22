@@ -11,7 +11,7 @@ class Joystick {
   public:
     Joystick();
     bool setup(int analogPin, float neutralVoltage, float halfRangeVoltage, float deadbandVoltage, bool invert);
-    bool setup(int analogPin, Preferences prefs, const char* name, bool invert);
+    bool setup(int analogPin, const char* name, bool invert);
     void loop();            //sample the analog input
     int16_t getValue();     //return value as a bidirectional ratio
     float getVoltage();   //return raw voltage
