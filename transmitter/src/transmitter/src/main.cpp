@@ -18,6 +18,7 @@
 #include "UIMessageBanner.h"
 #include "wifi_comms.h"
 #include "cli.h"
+#include "auto_pairing.h"
 
 #define SOFTWARE_VERSION "v2"
 
@@ -34,6 +35,7 @@ CommandMessage cmd_msg;          //outgoing
 ResponseMessage rsp_msg;        //incoming
 
 //globals for hardware
+PairButton pairButton(PIN_LEFT_TRIGGER, PIN_RIGHT_TRIGGER, PIN_RIGHT_THUMB_SWITCH);
 Joystick leftJoystick;
 Joystick rightJoystick;
 
@@ -85,10 +87,10 @@ bool screenSetup(){
 
 void setup() {
   // TESTING -----
-  //comms_led.toggle();
-  //delay(1000);
-  //comms_led.toggle();
-  //delay(1000);
+  commsLED.toggle();
+  delay(1000);
+  commsLED.toggle();
+  delay(1000);
   // -------- -----
 
   currentState = TRANSMITTER_STATE_STARTUP;
@@ -128,6 +130,7 @@ void setup() {
   startupOK &= espNowSetup();
   startupOK &= cliSetup();
   startupOK &= diagnostics.setup();
+  PairSetup();
 
   if(!startupOK)
   {
@@ -152,6 +155,8 @@ void setup() {
 void loop() {
   cmd_msg = GetCommandMessage();
   rsp_msg = GetResponseMessage();
+
+  pairButton.loop(&commsLED);
 
   leftJoystick.loop();
   rightJoystick.loop();

@@ -60,12 +60,19 @@ inline void startDiscovering() {
     uint8_t mac[6];
     esp_wifi_get_mac(WIFI_IF_STA, mac);
 
+    Serial.println("prep bleserver");
+
     // Prepare our BLE Server
     bleServer = BLEDevice::createServer(); 
+    Serial.println("setcallbacks");
     bleServer->setCallbacks(new BLECallbacks());
+    Serial.println("ble server created");
 
+
+    Serial.println("bleserver");
     // Prepare our Service
     bleService = bleServer->createService(UUID_SERVICE);
+    
 
     // A Characteristic is what we shall use to provide Clients/Slaves with our MAC Address.
     bleCharacteristic = bleService->createCharacteristic(UUID_CHARACTERISTIC, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
@@ -74,6 +81,8 @@ inline void startDiscovering() {
     bleCharacteristic->setValue(&mac[0], 6);
     // Make the Property visible to Clients/Slaves.
     bleCharacteristic->setBroadcastProperty(true);
+
+    Serial.println("startble");
 
     // Start the BLE Service
     bleService->start();
@@ -85,6 +94,8 @@ inline void startDiscovering() {
     bleAdvertising->setMinPreferred(0x06);
     bleAdvertising->setMinPreferred(0x12);
     BLEDevice::startAdvertising();
+
+    Serial.println("done startDiscovering1");
 
     return;
   }
