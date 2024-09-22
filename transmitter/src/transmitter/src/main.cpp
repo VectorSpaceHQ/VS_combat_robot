@@ -10,7 +10,7 @@
 #include "common.h"
 #include "joystick.h"
 #include "auto_pairing.h"
-//#include "diagnostics.h"
+#include "diagnostics.h"
 #include "UiUiUi.h" //DOWNLOAD FROM HERE BECAUSE IT HAS FIXES NOT IN ARDUINO VERSION: https://github.com/burksbuilds/UiUiUi
 #include "UIStatusIndicator.h"
 #include "UISidebar.h"
@@ -19,14 +19,9 @@
 #include "wifi_comms.h"
 #include "cli.h"
 
-#define SOFTWARE_VERSION "v1"
+#define SOFTWARE_VERSION "v2"
 
 #define CONNECTION_TIMEOUT_MS 1000
-
-//globals from libraries
-// Preferences preferences;
-// SimpleCLI cli;
-// PreferencesCLI prefCli(preferences);
 
 //globals for transmitter states
 TransmitterState currentState = TRANSMITTER_STATE_BOOT;
@@ -38,13 +33,14 @@ TransmitterWarning currentWarnings = TRANSMITTER_WARNING_NONE;
 CommandMessage cmd_msg;          //outgoing
 ResponseMessage rsp_msg;        //incoming
 
-
 //globals for hardware
 Joystick leftJoystick;
 Joystick rightJoystick;
 
-//LED fault_led(PIN_FAULT_LED);
-//LED comms_led(PIN_COMMS_LED);
+
+Diagnostics diagnostics;
+LED faultLED(PIN_FAULT_LED);
+LED commsLED(PIN_COMMS_LED);
 
 uint16_t batteryStateOfCharge;
 float batteryVoltage;
@@ -53,12 +49,6 @@ float batteryVoltageLowRange;
 float batteryVoltageHighRange;
 float batteryVoltageAlarmLimit;
 
-
-//globals for CLI
-/* char cliResponseBuffer[256];
-Command helpCommand;//command used to display CLI help
-Command restartCommand;//command used to restart the transmitter or receiver
-Command getVarCommand;//used to return values of certain internal variables */
 long restartTime;//if non zero, board will restart if millis() > restart 
 
 //globals for screen
@@ -119,10 +109,12 @@ void setup() {
   pinMode(PIN_BATTERY_SENSE,INPUT_PULLUP);
   batteryVoltage = batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
 
-  pinMode(PIN_FAULT_LED,OUTPUT);
+  /* pinMode(PIN_FAULT_LED,OUTPUT);
   digitalWrite(PIN_FAULT_LED,LOW);
   pinMode(PIN_COMMS_LED,OUTPUT);
-  digitalWrite(PIN_COMMS_LED,LOW);
+  digitalWrite(PIN_COMMS_LED,LOW); */
+  faultLED.off();
+  commsLED.off();
 
   Preferences preferences;
   preferences.begin("Battery");
@@ -135,12 +127,13 @@ void setup() {
   startupOK &= screenSetup();
   startupOK &= espNowSetup();
   startupOK &= cliSetup();
+  startupOK &= diagnostics.setup();
 
   if(!startupOK)
   {
     currentState = TRANSMITTER_STATE_CRITICAL_FAULT;
     Serial.println("ERROR: Critical fault during startup is preventing transition to normal operation");
-    digitalWrite(PIN_FAULT_LED,HIGH);
+    faultLED.on();
     controllerSidebar.updateStatusIndicator(UIStatusIcon::Fault);
     messageBanner.setMessage(UIStatusIcon::Fault,"Critical Fault","Unable to complete startup");
   } else {
@@ -148,7 +141,7 @@ void setup() {
     Serial.println("Startup Successful, transitioning to connecting state");
     controllerSidebar.updateStatusIndicator(UIStatusIcon::None);
     messageBanner.setMessage(UIStatusIcon::Info,"Startup Complete","Connecting to robot...");
-    digitalWrite(PIN_FAULT_LED,LOW);
+    faultLED.off();
   }
 
 
@@ -215,4 +208,6 @@ void loop() {
 
   dashboard.setValues(cmd_msg);
   displayManager.render(&screen);
+  diagnostics.loop(currentState, &commsLED, &faultLED);
+
 }

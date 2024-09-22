@@ -26,7 +26,7 @@ class Diagnostics {
 public:
     Diagnostics();
     bool setup();
-    void loop(ReceiverState currentState, LED *comms, LED *optional);
+    void loop(TransmitterState currentState, LED *comms, LED *optional);
     void connected();
     void disconnected();
 private:

@@ -18,20 +18,21 @@ bool Diagnostics::setup()
   return _isSetup;
 }
 
-void Diagnostics::loop(ReceiverState currentState, LED *comms, LED *optional)
+void Diagnostics::loop(TransmitterState currentState, LED *comms, LED *optional)
 {
     // blink comms pin
-    if (currentState == RECEIVER_STATE_CONNECTING){
+    if (currentState == TRANSMITTER_STATE_CONNECTING){
         comms->blink(200);
     }
-    else if(currentState == RECEIVER_STATE_PAIRING){
+    else if(currentState == TRANSMITTER_STATE_PAIRING){
         comms->blink(50);
     }
-    else if(currentState == RECEIVER_STATE_OPERATION){
-        comms->blink(800);
+    else if(currentState == TRANSMITTER_STATE_OPERATION){
+        //comms->blink(800);
+        comms->on();
     }
     // Fault: blink pins rapidly
-    else if (currentState == RECEIVER_STATE_CRITICAL_FAULT){
+    else if (currentState == TRANSMITTER_STATE_CRITICAL_FAULT){
         comms->blink(100);
         optional->blink(100);
     }
