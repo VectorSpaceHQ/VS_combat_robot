@@ -26,7 +26,7 @@
 DriveMotor leftMotor;
 DriveMotor rightMotor;
 Diagnostics diagnostics;
-Weapon weapon(D5);
+Weapon weapon(D4);
 PairButton pairButton(D9);
 LED commsLED(PIN_COMMS_LED);
 LED optionalLED(PIN_OPT_LED);

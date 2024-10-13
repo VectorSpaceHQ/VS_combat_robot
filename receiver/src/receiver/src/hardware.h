@@ -2,8 +2,8 @@
 #define HARDWARE_H
 #include "Arduino.h"
 
-#define PIN_LEFT_MOTOR_FORWARD 5 //D3
-#define PIN_LEFT_MOTOR_BACKWARD 4 // D2
+#define PIN_LEFT_MOTOR_FORWARD 4 //D2
+#define PIN_LEFT_MOTOR_BACKWARD 5 // D3
 #define PIN_RIGHT_MOTOR_FORWARD 2 // D0
 #define PIN_RIGHT_MOTOR_BACKWARD 3 // D1
 
