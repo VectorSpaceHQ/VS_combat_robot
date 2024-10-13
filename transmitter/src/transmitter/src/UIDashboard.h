@@ -28,7 +28,8 @@ class UIDashboard : public UIColumns
   private:
     UISpeedDisplay rightSpeed;
     UIEnvelope rightSpeedPadding;
-    UIEnvelope center;
+    UITextLine centerText;
+    // UIEnvelope center;
     UISpeedDisplay leftSpeed;
     UIEnvelope leftSpeedPadding;
 };

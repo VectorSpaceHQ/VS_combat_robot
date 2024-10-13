@@ -1,5 +1,5 @@
 #include "cli.h"
-
+#include "joystick.h"
 
 Preferences preferences;
 SimpleCLI cli;
@@ -11,7 +11,10 @@ Command helpCommand;//command used to display CLI help
 Command restartCommand;//command used to restart the transmitter or receiver
 Command getVarCommand;//used to return values of certain internal variables
 
-
+//external globals
+// extern Joystick leftJoystick;
+// extern Joystick rightJoystick;
+// extern float batteryVoltage;
 
 
 // Read command line inputs
@@ -100,7 +103,6 @@ void getVariableCommandCallback(cmd* commandPointer)
   else if (variableName.equalsIgnoreCase("responseMessageId")) Serial.println(rsp_msg.command_id);
   else if (variableName.equalsIgnoreCase("leftSpeed")) Serial.println(cmd_msg.left_speed);
   else if (variableName.equalsIgnoreCase("rightSpeed")) Serial.println(cmd_msg.right_speed);
-  // Adam breaking these 3 lines. Need Andrew to help bring them back without use of globals.
   // else if (variableName.equalsIgnoreCase("leftStickV")) Serial.println(leftJoystick.getVoltage());
   // else if (variableName.equalsIgnoreCase("rightStickV")) Serial.println(rightJoystick.getVoltage());
   else if (variableName.equalsIgnoreCase("weaponSpeed")) Serial.println(cmd_msg.weapon_speed);

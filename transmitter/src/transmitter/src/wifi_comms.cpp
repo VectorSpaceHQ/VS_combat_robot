@@ -35,12 +35,12 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 
 
 
-bool sendCommand(Joystick leftJoystick, Joystick rightJoystick) {
+bool sendCommand(Joystick leftJoystick, Joystick rightJoystick, uint16_t weaponSpeed) {
     commandMessage.id++;
     commandMessage.send_time = millis();
     commandMessage.left_speed = leftJoystick.getValue();
     commandMessage.right_speed = rightJoystick.getValue();
-    commandMessage.weapon_speed = digitalRead(PIN_WEAPON_TOGGLE_SWITCH) ? DEFAULT_WEAPON_SPEED : 0;
+    commandMessage.weapon_speed = weaponSpeed;
     commandMessage.horn_frequency = digitalRead(PIN_RIGHT_THUMB_SWITCH) ? 0 : DEFAULT_HORN_FREQUENCY;
     commandMessage.servo_position = 0;
     commandMessage.clear_faults = RECEIVER_FAULT_NONE;
