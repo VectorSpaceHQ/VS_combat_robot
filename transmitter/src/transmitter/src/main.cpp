@@ -38,6 +38,7 @@ ResponseMessage rsp_msg;        //incoming
 PairButton pairButton(PIN_LEFT_TRIGGER, PIN_RIGHT_TRIGGER, PIN_RIGHT_THUMB_SWITCH);
 Joystick leftJoystick;
 Joystick rightJoystick;
+int16_t weaponSpeed = 0;
 
 
 Diagnostics diagnostics;
@@ -161,6 +162,8 @@ void loop() {
   leftJoystick.loop();
   rightJoystick.loop();
 
+  
+
   batteryVoltage = 0.99 * batteryVoltage + 0.01 * batteryVoltageMultiplier * (analogReadMilliVolts(PIN_BATTERY_SENSE) / 1000.0);
   batteryStateOfCharge = map(static_cast<uint16_t>(batteryVoltage*1000), batteryVoltageLowRange*1000, batteryVoltageHighRange*1000, 0, 0xFFFF);
   controllerSidebar.updateBatteryLevel(batteryStateOfCharge);
@@ -168,7 +171,7 @@ void loop() {
   if(currentState & (TRANSMITTER_STATE_OPERATION | TRANSMITTER_STATE_CONNECTING))
   {
     if(millis() - cmd_msg.send_time > 50){
-        sendCommand(leftJoystick, rightJoystick);
+        sendCommand(leftJoystick, rightJoystick, weaponSpeed);
     }
 
   }
@@ -190,6 +193,17 @@ void loop() {
       messageBanner.setMessage(UIStatusIcon::Warning,"Robot Lost","Connection Lost");
       controllerSidebar.updateWifiStrength(0);
     }
+
+    if(!digitalRead(PIN_RIGHT_TRIGGER))
+    {
+      weaponSpeed = DEFAULT_WEAPON_SPEED;
+    }
+    if(!digitalRead(PIN_LEFT_TRIGGER))
+    {
+      weaponSpeed = 0;
+    }
+  } else {
+    weaponSpeed = 0;
   }
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)

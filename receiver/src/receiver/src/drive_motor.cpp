@@ -8,7 +8,7 @@ DriveMotor::DriveMotor(){
 }
 
 
-bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
+bool DriveMotor::init(int PinA, int PinB, 
                  ledc_channel_t channelA, ledc_channel_t channelB)
 {
     _isSetup = true;
@@ -17,13 +17,12 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
 
     pinMode(PinA, OUTPUT);
     pinMode(PinB, OUTPUT);
-    timerA = LEDC_TIMER_2;
 
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .duty_resolution  = LEDC_TIMER_8_BIT,
-        .timer_num        = timerA,
-        .freq_hz          = 1000,  // Set output frequency at 5 kHz
+        .duty_resolution  = DEFAULT_DRIVE_PWM_RESOLUTION,
+        .timer_num        = LEDC_TIMER_2,
+        .freq_hz          = DEFAULT_DRIVE_PWM_FREQUENCY,  // Set carrier frequency of PWM
         .clk_cfg          = LEDC_AUTO_CLK
     };
     ESP_ERROR_CHECK(ledc_timer_config(&ledc_timer));
@@ -34,7 +33,7 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
         .speed_mode     = LEDC_LOW_SPEED_MODE,
         .channel        = channelA,
         .intr_type      = LEDC_INTR_DISABLE,
-        .timer_sel      = timerA,
+        .timer_sel      = LEDC_TIMER_2,
         .duty           = 0, // Set duty to 0%
         .hpoint         = 0
     };
@@ -46,7 +45,7 @@ bool DriveMotor::init(int PinA, int PinB, ledc_timer_t timerA,
         .speed_mode     = LEDC_LOW_SPEED_MODE,
         .channel        = channelB,
         .intr_type      = LEDC_INTR_DISABLE,
-        .timer_sel      = timerA,
+        .timer_sel      = LEDC_TIMER_2,
         .duty           = 0, // Set duty to 0%
         .hpoint         = 0
     };

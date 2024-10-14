@@ -80,9 +80,9 @@ void setup() {
   startupOK &= diagnostics.setup();
   startupOK &= cliSetup();
   startupOK &= leftMotor.init(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD,
-                              LEDC_TIMER_2, LEDC_CHANNEL_2, LEDC_CHANNEL_3);
+                              LEDC_CHANNEL_2, LEDC_CHANNEL_3);
   startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
-                               LEDC_TIMER_2, LEDC_CHANNEL_0, LEDC_CHANNEL_1);
+                               LEDC_CHANNEL_0, LEDC_CHANNEL_1);
   startupOK &= weapon.setup();
   startupOK &= espNowSetup();
   
