@@ -68,6 +68,7 @@ void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
 
 
 void setup() {
+  //delay(2000);
   currentState = RECEIVER_STATE_STARTUP;
   bool startupOK = true;
 

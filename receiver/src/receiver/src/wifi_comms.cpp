@@ -21,12 +21,20 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 
 // Callback when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-  
   if(len != sizeof(commandMessage))
   {
     Serial.println("ERROR: Incoming message is not the right size");
     return;
   }
+
+  // This is a quick fix to the problem of multiple transmitters controlling the receiver.
+  for(int i=0; i<=5; i++){
+    if(mac[i] != transmitterCommsInfo.peer_addr[i]){
+      Serial.println("ERROR: This is not a message from the paired transmitter. Ignoring.");
+      return;
+    }
+  }
+  
   memcpy(&commandMessage, incomingData, sizeof(commandMessage));
 }
 
