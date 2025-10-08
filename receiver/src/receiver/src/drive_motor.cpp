@@ -9,11 +9,15 @@ DriveMotor::DriveMotor(){
 
 
 bool DriveMotor::init(int PinA, int PinB, 
-                 ledc_channel_t channelA, ledc_channel_t channelB)
+                ledc_channel_t channelA,
+                int pwm)
 {
+    Serial.println("Initializing drive motor");
     _isSetup = true;
-    _forwardChannel = channelA;
-    _backwardChannel = channelB;
+    _pwmChannel = channelA;
+    _pwmPin = pwm;
+    _pinA = PinA;
+    _pinB = PinB;
 
     pinMode(PinA, OUTPUT);
     pinMode(PinB, OUTPUT);
@@ -29,9 +33,9 @@ bool DriveMotor::init(int PinA, int PinB,
 
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel_config_t ledc_channel1 = {
-        .gpio_num       = PinA,
+        .gpio_num       = _pwmPin,
         .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = channelA,
+        .channel        = _pwmChannel,
         .intr_type      = LEDC_INTR_DISABLE,
         .timer_sel      = LEDC_TIMER_2,
         .duty           = 0, // Set duty to 0%
@@ -39,18 +43,7 @@ bool DriveMotor::init(int PinA, int PinB,
     };
     ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel1));
 
-    // Prepare and then apply the LEDC PWM channel configuration
-    ledc_channel_config_t ledc_channel2 = {
-        .gpio_num       = PinB,
-        .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = channelB,
-        .intr_type      = LEDC_INTR_DISABLE,
-        .timer_sel      = LEDC_TIMER_2,
-        .duty           = 0, // Set duty to 0%
-        .hpoint         = 0
-    };
-    ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel2));
-
+    this->wake(); // wake up motor driver
 
     return _isSetup;
 }
@@ -62,35 +55,68 @@ void DriveMotor::loop(int speed, bool enable){
 
     if(enable)
     {
-        if(speed > 0)
+        if(speed > _deadband)
         {
+            if (_lastcommand == 1) {
+                digitalWrite(_pinA, 0);
+                digitalWrite(_pinB, 0);
+                ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, _maxCommand) );
+                ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
+                delay(60); // if changing direction, wait 100ms to avoid a big current spike
+            }
             cmd = map(speed,0,0x7fff,0,_maxCommand);
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, cmd) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, 0) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
+            digitalWrite(_pinA, 0);
+            digitalWrite(_pinB, 1);
 
-        } else if(speed < 0)
+            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, cmd) );
+            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
+
+            _lastcommand = 0;
+        } 
+        else if(speed < -_deadband)
         {
-            // last minute bug fix. remove this
-            if (speed < -30000){
-              speed = -32767;
-            } //--------------------------------
+            if (_lastcommand == 0) {
+                digitalWrite(_pinA, 0);
+                digitalWrite(_pinB, 0);
+                ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, _maxCommand) );
+                ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
+                delay(60); // if changing direction, wait 100ms to avoid a big current spike
+            }
             cmd = map(speed,0,-1*0x7fff,0,_maxCommand);
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, 0) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, cmd) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
-        } else { // brakes
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, _maxCommand) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
-            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, _maxCommand) );
-            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
+            digitalWrite(_pinA, 1);
+            digitalWrite(_pinB, 0);
+            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, cmd) );
+            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
+
+            _lastcommand = 1;
+        } 
+        else { // brakes
+            digitalWrite(_pinA, 0);
+            digitalWrite(_pinB, 0);
+            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, _maxCommand) );
+            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
+            _lastcommand = 2;
         }
-    } else {
-        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _forwardChannel, 0) );
-        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _forwardChannel) );
-        ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _backwardChannel, 0) );
-        ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _backwardChannel) );
+    } else { // disable motor (coast)
+            digitalWrite(_pinA, 0);
+            digitalWrite(_pinB, 0);
+            ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, 0) );
+            ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
     }
+}
+
+void DriveMotor::wake(){
+    // The VNH7100 must be woken out of standby.
+    // Toggle INA from 0 to 1
+    // Toggle PWM from 0 to 1 with a 20us delay.
+    pinMode(_sel0, OUTPUT);
+
+    ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, 0) );
+    ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, _maxCommand) );
+
+    digitalWrite(_sel0, 0);
+    delayMicroseconds(20);
+    digitalWrite(_sel0, 1);
+
+    Serial.println("Drive motor enabled");
 }

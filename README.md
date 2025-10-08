@@ -5,6 +5,12 @@ This is an open source, low cost, DIY combat robot kit. It is designed for use w
 This repository includes PCB designs for the transmitter and receiver, the associated software, as well as a simple 3d printable chassis and controller design.
 
 
+# Pairing Receiver and Transmitter
+- On the receiver, hold the B button for 3 seconds to enter pairing mode.
+- On the transmitter, hold L trigger, R trigger, and depress the right thumb joystick at the same time for 3 seconds to enter pairing mode. Once in pairing mode, the wifi LED will blink rapidly. The transmitter will stay in this state for 15 seconds unless it is paired quicker.
+- Once paired, the comms1 LED on the receiver will blink slowly, like a heartbeat. The transmitter LCD will show Robot Connected.
+
+
 # Troubleshooting
 
 # Invalid head of packet

@@ -12,6 +12,12 @@ Vin: 6.5V to 45V
 # Software
 ## Receiver
 
+### Compiling
+1. Ensure PlatformIO Core installed
+2. Click PlatformIO extension on sidebar
+3. Open ./src/receiver as project.
+4. Click Upload -> arrow at bottom bar.
+
 ## Transmitter
 ### Installation
 #### Determine MAC Address of ESP32
