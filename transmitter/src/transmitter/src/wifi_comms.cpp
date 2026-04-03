@@ -25,6 +25,9 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
     memcpy(&responseMessage, incomingData, sizeof(responseMessage));
     responseMessage.responseMessageTime = millis();
+    //printPeerList();
+    //getMyMAC();
+    
     if(responseMessage.command_id == commandMessage.id)
     {
         roundtripTime = millis() - commandMessage.send_time;
@@ -103,6 +106,33 @@ esp_now_peer_info_t getMAC(){
   return mac;
 }
 
+void getMyMAC(){
+  // Parse the MAC string returned by WiFi.macAddress() (format: "AA:BB:CC:DD:EE:FF")
+  String macString = WiFi.macAddress();
+  uint8_t mac[6] = {0};
+
+  const char* s = macString.c_str();
+  char byteStr[3] = {0};
+  int bytePos = 0; // how many hex digits collected for current byte (0..2)
+  int idx = 0;     // mac byte index
+
+  for (int i = 0; s[i] != '\0' && idx < 6; ++i) {
+    char c = s[i];
+    if (isxdigit((unsigned char)c)) {
+      // collect hex digit
+      byteStr[bytePos++] = c;
+      if (bytePos == 2) {
+        byteStr[2] = '\0';
+        mac[idx++] = (uint8_t) strtoul(byteStr, NULL, 16);
+        bytePos = 0;
+      }
+    }
+  }
+
+  Serial.print("My MAC Address is: ");
+  printMAC(mac);
+}
+
 
 bool espNowSetup()
 {
@@ -149,6 +179,7 @@ bool espNowSetup()
 }
 
 
+
 bool AddPeer(esp_now_peer_info_t CommsInfo){
   Serial.print("Adding peer at MAC: ");
   printMAC(CommsInfo.peer_addr);
@@ -178,4 +209,54 @@ bool sendResponse(ReceiverState currentState, ReceiverFault currentFaults, Recei
     Serial.println("WARNING: response message may not have been sent");
   }
   return result == ESP_OK;
+}
+
+void printPeerList() {
+  esp_now_peer_num_t peer_num;
+  esp_err_t result = esp_now_get_peer_num(&peer_num);
+  if (result != ESP_OK) {
+    Serial.println("ERROR: Failed to get peer count");
+    return;
+  }
+
+  Serial.print("Total peers: ");
+  Serial.println(peer_num.total_num);
+  Serial.print("Encrypted peers: ");
+  Serial.println(peer_num.encrypt_num);
+
+  // Print our known receiver peer
+  esp_now_peer_info_t peer;
+  if (esp_now_get_peer(receiverCommsInfo.peer_addr, &peer) == ESP_OK) {
+    Serial.print("Receiver MAC: ");
+    printMAC(peer.peer_addr);
+    Serial.print("    Channel: ");
+    Serial.print(peer.channel);
+    Serial.print("    Encrypted: ");
+    Serial.println(peer.encrypt ? "Yes" : "No");
+  } else {
+    Serial.println("ERROR: Failed to get receiver peer info");
+  }
+
+  // Check for any other peers that might be registered
+  uint8_t* broadcastAddress = new uint8_t[6];
+  for(int i = 0; i < 6; i++) broadcastAddress[i] = 0xFF; // Start with broadcast address
+  
+  while(esp_now_is_peer_exist(broadcastAddress) && 
+        memcmp(broadcastAddress, receiverCommsInfo.peer_addr, 6) != 0) {
+    if (esp_now_get_peer(broadcastAddress, &peer) == ESP_OK) {
+      Serial.print("Additional peer MAC: ");
+      printMAC(peer.peer_addr);
+      Serial.print("    Channel: ");
+      Serial.print(peer.channel);
+      Serial.print("    Encrypted: ");
+      Serial.println(peer.encrypt ? "Yes" : "No");
+    }
+    // Move to next possible MAC address
+    for(int i = 0; i < 6; i++) {
+      broadcastAddress[i]++;
+      if(broadcastAddress[i] != 0) break;
+    }
+  }
+  
+  delete[] broadcastAddress;
 }

@@ -89,9 +89,9 @@ bool screenSetup(){
 void setup() {
   // TESTING -----
   commsLED.toggle();
-  delay(1000);
+  delay(500);
   commsLED.toggle();
-  delay(1000);
+  delay(500);
   // -------- -----
 
   currentState = TRANSMITTER_STATE_STARTUP;

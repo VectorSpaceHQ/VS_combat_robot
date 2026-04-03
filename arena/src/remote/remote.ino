@@ -6,9 +6,9 @@
 #include <WiFi.h>
 #include "common.h"
 
-#define START_BUTTON_PIN D3
-#define CANCEL_BUTTON_PIN D9
-#define LED_PIN D7
+#define START_BUTTON_PIN 5
+#define CANCEL_BUTTON_PIN 4
+#define LED_PIN 20
 
 
 sender_message message;//message to send to clock

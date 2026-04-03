@@ -27,6 +27,7 @@ DriveMotor leftMotor;
 DriveMotor rightMotor;
 Diagnostics diagnostics;
 Weapon weapon(D4);
+WeaponServo weaponServo(D5);
 PairButton pairButton(D9);
 LED commsLED(PIN_COMMS_LED);
 LED optionalLED(PIN_OPT_LED);
@@ -68,7 +69,7 @@ void SetState(CommandMessage cmd_msg, ResponseMessage rsp_msg){
 
 
 void setup() {
-  //delay(2000);
+  delay(2000);
   currentState = RECEIVER_STATE_STARTUP;
   bool startupOK = true;
 
@@ -85,6 +86,7 @@ void setup() {
   startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
                                LEDC_CHANNEL_0, PWM_PIN_RIGHT);
   startupOK &= weapon.setup();
+  startupOK &= weaponServo.setup();
   startupOK &= espNowSetup();
 
   delay(200);
@@ -109,6 +111,7 @@ void loop(){
   leftMotor.loop(cmd_msg.left_speed, currentState == RECEIVER_STATE_OPERATION);
   rightMotor.loop(cmd_msg.right_speed, currentState == RECEIVER_STATE_OPERATION);
   weapon.loop(cmd_msg.weapon_speed, currentState == RECEIVER_STATE_OPERATION);
+  weaponServo.loop(cmd_msg.weapon_servo_position, currentState == RECEIVER_STATE_OPERATION);
   diagnostics.loop(currentState, &commsLED, &optionalLED);
 
   SetState(cmd_msg, rsp_msg);

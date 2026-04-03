@@ -1,0 +1,107 @@
+#include <esp_now.h>
+#include <WiFi.h>
+#include "button.h"
+
+ReadyButton ready_button(5); //D3
+ResetButton reset_button(4); //D2, which doesn't seem friendly to buttons
+int led_pin = 20; // D7
+
+uint8_t broadcastAddress[] = {0x48, 0x27, 0xe2, 0x3d, 0x01, 0x74}; // Arena mac address
+
+typedef struct struct_message {
+    bool competitor_ready;
+    bool competitor_reset;
+} struct_message;
+struct_message buttonStates;
+
+typedef struct struct_incoming{
+  bool alive;
+} struct_incoming;
+struct_incoming arena_message;
+
+bool competitor_ready;
+bool competitor_reset;
+
+esp_now_peer_info_t peerInfo;
+
+String success;
+
+
+
+
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(led_pin, OUTPUT);
+
+  // Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
+  Serial.print("This device's MAC Adress is: ");
+  Serial.println(WiFi.macAddress());
+
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  // Once ESPNow is successfully Init, we will register for Send CB to
+  // get the status of Trasnmitted packet
+  esp_now_register_send_cb(OnDataSent);
+
+  // Register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+
+  // Add peer
+  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+    Serial.println("Failed to add peer");
+    return;
+  }
+  // Register for a callback function that will be called when data is received
+//  esp_now_register_recv_cb(OnDataRecv);
+
+  // Show bootup success with LED
+  digitalWrite(led_pin, 1);
+  delay(1000);
+  digitalWrite(led_pin,0);
+
+}
+
+void loop() {
+
+    ready_button.loop();
+    reset_button.loop();
+
+    buttonStates.competitor_ready = ready_button.ready;
+    buttonStates.competitor_reset = reset_button.reset;
+
+    if(ready_button.ready){
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &buttonStates, sizeof(buttonStates));
+      digitalWrite(led_pin, 1);
+      delay(100);
+      digitalWrite(led_pin,0);
+      delay(50);
+      
+    }
+    else{
+      digitalWrite(led_pin, 1);
+    }
+
+    delay(50);
+}
+
+// Callback when data is sent
+void OnDataSent(const esp_now_send_info_t *tx_info, esp_now_send_status_t status) {
+  const uint8_t* mac_addr = tx_info->des_addr;
+  Serial.print("\r\nLast Packet Send Status:\t");
+  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+  if (status ==0){
+    success = "Delivery Success :)";
+  }
+  else{
+    success = "Delivery Fail :(";
+  }
+}
