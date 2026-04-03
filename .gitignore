@@ -20,3 +20,11 @@ transmitter/src/transmitter/common.h
 *.log
 arena/src/clock/common.h
 arena/src/remote/common.h
+*.FCBak
+*.stl
+*.STEP
+*.nc
+*.step
+*.ngc
+*.dxf
+*.3mf
