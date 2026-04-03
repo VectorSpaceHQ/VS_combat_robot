@@ -82,7 +82,7 @@ struct CommandMessage
   int16_t left_speed;      //bidirectional desired speed of left drive (2^15-1 => 100% forward)
   int16_t right_speed;    //bidirectional desired speed of right drive (2^15-1 => 100% forward)
   int16_t weapon_speed;    //bidirectional desired speed of weapon drive (2^15-1 => 100% forward). unidirectional weapons ignore negatives
-  int16_t servo_position;   //bidirectional desired position of servo (2^15-1 => 100% forward). unidirectional servos ignore negatives
+  int16_t weapon_servo_position;   //bidirectional desired position of servo (2^15-1 => 100% forward). unidirectional servos ignore negatives
   uint16_t horn_frequency;  //desired frequency in Hz of the buzzer. 0 indicates no horn desired.
   ReceiverFault clear_faults;  //clear the indicated faults on the receiver
   ReceiverWarning clear_warnings;  //clear the indicated warnings on the receiver

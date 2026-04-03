@@ -17,7 +17,7 @@ class DriveMotor{
     //            int pwmResolution = DEFAULT_DRIVE_PWM_RESOLUTION);
     bool init(int PinA, int PinB, 
               ledc_channel_t channelA,
-              int pwm);
+              int pwm, bool invert = false);
     void loop(int speed, bool enable = true);
     void wake();
   private:
@@ -32,6 +32,7 @@ class DriveMotor{
     int _pinB;
     int _deadband = 500;
     int _lastcommand = 0; //0 = forward, 1 = backward, 2 = brake, 3 = coast
+    bool _invert;
 };
 
 #endif

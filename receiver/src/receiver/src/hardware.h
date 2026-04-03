@@ -14,8 +14,8 @@
 #define PWM_PIN_LEFT  10 // D10
 #define PWM_PIN_RIGHT 20 // D7
 
-#define PWM_CHANNEL_LEFT 1
-#define PWM_CHANNEL_RIGHT 2
+#define PWM_CHANNEL_LEFT 2
+#define PWM_CHANNEL_RIGHT 1
 
 #define PIN_COMMS_LED D8
 #define PIN_OPT_LED D7

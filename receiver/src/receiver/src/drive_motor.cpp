@@ -10,7 +10,7 @@ DriveMotor::DriveMotor(){
 
 bool DriveMotor::init(int PinA, int PinB, 
                 ledc_channel_t channelA,
-                int pwm)
+                int pwm, bool invert)
 {
     Serial.println("Initializing drive motor");
     _isSetup = true;
@@ -18,6 +18,7 @@ bool DriveMotor::init(int PinA, int PinB,
     _pwmPin = pwm;
     _pinA = PinA;
     _pinB = PinB;
+    _invert = invert;
 
     pinMode(PinA, OUTPUT);
     pinMode(PinB, OUTPUT);
@@ -65,8 +66,15 @@ void DriveMotor::loop(int speed, bool enable){
                 delay(60); // if changing direction, wait 100ms to avoid a big current spike
             }
             cmd = map(speed,0,0x7fff,0,_maxCommand);
-            digitalWrite(_pinA, 0);
-            digitalWrite(_pinB, 1);
+
+            if(!_invert){
+                digitalWrite(_pinA, 0);
+                digitalWrite(_pinB, 1);
+            }
+            else {
+                digitalWrite(_pinA, 1);
+                digitalWrite(_pinB, 0);
+            }
 
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, cmd) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
@@ -83,8 +91,16 @@ void DriveMotor::loop(int speed, bool enable){
                 delay(60); // if changing direction, wait 100ms to avoid a big current spike
             }
             cmd = map(speed,0,-1*0x7fff,0,_maxCommand);
-            digitalWrite(_pinA, 1);
-            digitalWrite(_pinB, 0);
+
+            if(!_invert){
+                digitalWrite(_pinA, 1);
+                digitalWrite(_pinB, 0);
+            }
+            else {
+                digitalWrite(_pinA, 0);
+                digitalWrite(_pinB, 1);
+            }
+
             ESP_ERROR_CHECK( ledc_set_duty(LEDC_LOW_SPEED_MODE, _pwmChannel, cmd) );
             ESP_ERROR_CHECK( ledc_update_duty(LEDC_LOW_SPEED_MODE, _pwmChannel) );
 

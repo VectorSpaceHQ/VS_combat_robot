@@ -21,7 +21,7 @@ void setMAC(uint8_t* mac);
 esp_now_peer_info_t getMAC();
 void getMyMAC();
 void printMAC(uint8_t* mac);
-bool sendCommand(Joystick leftJoystick, Joystick rightJoystick, uint16_t weaponSpeed);
+bool sendCommand(Joystick leftJoystick, Joystick rightJoystick, uint16_t weaponSpeed, uint16_t servo_position);
 void printPeerList();
 
 

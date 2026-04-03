@@ -39,6 +39,7 @@ PairButton pairButton(PIN_LEFT_TRIGGER, PIN_RIGHT_TRIGGER, PIN_RIGHT_THUMB_SWITC
 Joystick leftJoystick;
 Joystick rightJoystick;
 int16_t weaponSpeed = 0;
+int16_t servo_position = 0;
 
 
 Diagnostics diagnostics;
@@ -171,7 +172,7 @@ void loop() {
   if(currentState & (TRANSMITTER_STATE_OPERATION | TRANSMITTER_STATE_CONNECTING))
   {
     if(millis() - cmd_msg.send_time > 50){
-        sendCommand(leftJoystick, rightJoystick, weaponSpeed);
+        sendCommand(leftJoystick, rightJoystick, weaponSpeed, servo_position);
     }
 
   }
@@ -202,8 +203,15 @@ void loop() {
     {
       weaponSpeed = 0;
     }
+    if(!digitalRead(PIN_RIGHT_TRIGGER)){
+      servo_position = -1;
+    }
+    if(!digitalRead(PIN_LEFT_TRIGGER)){
+      servo_position = 1;
+    }
   } else {
     weaponSpeed = 0;
+    //servo_position = 0;
   }
 
   if(currentState == TRANSMITTER_STATE_CONNECTING)

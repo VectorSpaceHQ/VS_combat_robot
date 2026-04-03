@@ -8,6 +8,7 @@
 #include "common.h"
 #include "drive_motor.h"
 #include "weapon.h"
+#include "weapon_servo.h"
 #include "wifi_comms.h"
 #include "diagnostics.h"
 #include "cli.h"
@@ -84,7 +85,7 @@ void setup() {
   startupOK &= leftMotor.init(PIN_LEFT_MOTOR_FORWARD, PIN_LEFT_MOTOR_BACKWARD,
                               LEDC_CHANNEL_2, PWM_PIN_LEFT);
   startupOK &= rightMotor.init(PIN_RIGHT_MOTOR_FORWARD, PIN_RIGHT_MOTOR_BACKWARD,
-                               LEDC_CHANNEL_0, PWM_PIN_RIGHT);
+                               LEDC_CHANNEL_1, PWM_PIN_RIGHT, true);
   startupOK &= weapon.setup();
   startupOK &= weaponServo.setup();
   startupOK &= espNowSetup();
